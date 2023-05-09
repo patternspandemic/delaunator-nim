@@ -13,12 +13,13 @@ type
     hull*: seq[uint32]
 
     # Arrays that will store the triangulation graph
-    trianglesLen: int
+    trianglesLen: int32
     d_triangles: seq[uint32]
     d_halfedges: seq[int32]
 
     # Temporary arrays for tracking the edges of the advancing convex hull
     d_hashSize: int
+    d_hullStart: int
     d_hullPrev: seq[uint32]  # edge to prev edge
     d_hullNext: seq[uint32]  # edge to next edge
     d_hullTri:  seq[uint32]  # edge to adjacent triangle
@@ -151,12 +152,125 @@ proc quicksort[F](ids: var seq[uint32]; dists: seq[F]; left, right: int) =
 
 proc update(this: var Delaunator) =
 
-  # TODO
-  proc u_hashKey() = discard
-  proc u_legalize() = discard
-  proc u_link() = discard
-  proc u_addTriangle() = discard
+  # TODO, move this proc down to where cx, cy are delcared.
+  let
+    (u_cx, u_cy) = (1.0, 2.0) # circumcenter(....)
+  proc u_hashKey(x, y: SomeFloat): int32 =
+    return floor(pseudoAngle(x - u_cx, y - u_cy) * this.d_hashSize) %% this.d_hashSize
 
+
+  proc u_link(a, b: int32) =
+    this.d_halfedges[a] = b
+    if b != -1: this.d_halfedges[b] = a
+
+
+  # Lots of int type casting due to disconnect between indexing and unsigned storage types used for halfedges/hull checks.
+  proc u_legalize(a: var int32): uint32 =
+    var
+      triangles = this.d_triangles
+      halfedges = this.d_halfedges
+      coords = this.coords
+      i = 0
+      ar = 0'i32
+
+    while true:
+      block outerWhile:
+        let b = halfedges[a]
+
+        #[
+        if the pair of triangles doesn't satisfy the Delaunay condition
+        (p1 is inside the circumcircle of [p0, pl, pr]), flip them,
+        then do the same check/flip recursively for the new pair of triangles
+
+                pl                    pl
+               /||\                  /  \
+            al/ || \bl            al/    \a
+             /  ||  \              /      \
+            /  a||b  \    flip    /___ar___\
+          p0\   ||   /p1   =>   p0\---bl---/p1
+             \  ||  /              \      /
+            ar\ || /br             b\    /br
+               \||/                  \  /
+                pr                    pr
+
+        ]#
+
+        let a0 = a - a %% 3
+        ar = a0 + (a + 2) %% 3
+
+        if b == -1: # convex hull edge
+          if i == 0: break
+          dec i
+          a = int32(EDGE_STACK[i])
+          continue
+
+        let
+          b0 = b - b %% 3
+          al = a0 + (a + 1) %% 3
+          bl = b0 + (b + 2) %% 3
+
+          p0 = triangles[ar]
+          pr = triangles[a]
+          pl = triangles[al]
+          p1 = triangles[bl]
+
+          illegal = inCircle(
+            coords[2 * p0], coords[2 * p0 + 1],
+            coords[2 * pr], coords[2 * pr + 1],
+            coords[2 * pl], coords[2 * pl + 1],
+            coords[2 * p1], coords[2 * p1 + 1])
+
+        if illegal:
+          triangles[a] = p1
+          triangles[b] = p0
+
+          let hbl = halfedges[bl]
+
+          # edge swapped on the other side of the hull (rare); fix the halfedge reference
+          if hbl == -1:
+            var e = this.d_hullStart
+            while true:
+              if int32(this.d_hullTri[e]) == bl:
+                this.d_hullTri[e] = uint32(a)
+                break outerWhile
+              e = int32(this.d_hullPrev[e])
+              if e == this.d_hullStart: break
+          u_link(a, hbl)
+          u_link(b, halfedges[ar])
+          u_link(ar, bl)
+
+          let br = b0 + (b + 1) %% 3
+
+          # don't worry about hitting the cap: it can only happen on extremely degenerate input
+          if i < EDGE_STACK.len:
+            EDGE_STACK[i] = uint32(br)
+            inc i
+
+        else:
+          if i == 0: break
+          dec i
+          a = int32(EDGE_STACK[i])
+
+    return uint32(ar)
+
+
+  proc u_addTriangle(i0, i1, i2, a, b, c: int32): int32 =
+    let t = this.trianglesLen
+
+    this.d_triangles[t] = uint32(i0)
+    this.d_triangles[t + 1] = uint32(i1)
+    this.d_triangles[t + 2] = uint32(i2)
+
+    u_link(t, a)
+    u_link(t + 1, b)
+    u_link(t + 2, c)
+
+    this.trianglesLen += 3
+
+    return t
+
+
+  # TODO: main update code here
   this.triangles = this.d_triangles[1 .. ^1]
   discard
 
@@ -171,6 +285,7 @@ proc fromCoords*[T](coordinates: seq[T]): Delaunator[T] =
   result.d_triangles = newSeq[uint32](maxTriangles * 3)
   result.d_halfedges = newSeq[int32](maxTriangles * 3)
   result.d_hashSize = ceil(sqrt(n.toFloat)).toInt
+  result.d_hullStart = 0
   result.d_hullPrev = newSeq[uint32](n)
   result.d_hullNext = newSeq[uint32](n)
   result.d_hullTri = newSeq[uint32](n)
