@@ -1,6 +1,7 @@
 
 import std/math
-from std/fenv import epsilon
+#from std/fenv import epsilon
+import orient2d
 
 
 var EDGE_STACK: array[512, uint32]
