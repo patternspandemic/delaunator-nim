@@ -1,3 +1,4 @@
+
 import std/math
 
 let
@@ -104,7 +105,164 @@ proc sum(elen: int; e: openArray[float64]; flen: int; f: openArray[float64]; h: 
   return hindex
 
 
-func orient2dadapt(ax, ay, bx, by, cx, cy, detsum: SomeFloat): int = discard
+func orient2dadapt(ax, ay, bx, by, cx, cy, detsum: SomeFloat): int =
+  var
+    acxtail, acytail, bcxtail, bcytail: SomeFloat
+    bvirt, c, ahi, alo, bhi, blo, o_i, o_j, o_0, s1, s0, t1, t0, u3: SomeFloat
+
+  let
+    acx = ax - cx
+    bcx = bx - cx
+    acy = ay - cy
+    bcy = by - cy
+
+  s1 = acx * bcy
+  c = splitter * acx
+  ahi = c - (c - acx)
+  alo = acx - ahi
+  c = splitter * bcy
+  bhi = c - (c - bcy)
+  blo = bcy - bhi
+  s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo)
+  t1 = acy * bcx
+  c = splitter * acy
+  ahi = c - (c - acy)
+  alo = acy - ahi
+  c = splitter * bcx
+  bhi = c - (c - bcx)
+  blo = bcx - bhi
+  t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo)
+  o_i = s0 - t0
+  bvirt = s0 - o_i
+  B[0] = s0 - (o_i + bvirt) + (bvirt - t0)
+  o_j = s1 + o_i
+  bvirt = o_j - s1
+  o_0 = s1 - (o_j - bvirt) + (o_i - bvirt)
+  o_i = o_0 - t1
+  bvirt = o_0 - o_i
+  B[1] = o_0 - (o_i + bvirt) + (bvirt - t1)
+  u3 = o_j + o_i
+  bvirt = u3 - o_j
+  B[2] = o_j - (u3 - bvirt) + (o_i - bvirt)
+  B[3] = u3
+
+  var
+    det = estimate(B)
+    errbound = ccwerrboundB * detsum
+  if det >= errbound or -det >= errbound:
+     return det
+
+  bvirt = ax - acx
+  acxtail = ax - (acx + bvirt) + (bvirt - cx)
+  bvirt = bx - bcx
+  bcxtail = bx - (bcx + bvirt) + (bvirt - cx)
+  bvirt = ay - acy
+  acytail = ay - (acy + bvirt) + (bvirt - cy)
+  bvirt = by - bcy
+  bcytail = by - (bcy + bvirt) + (bvirt - cy)
+
+  if acxtail == 0 and acytail == 0 and bcxtail == 0 and bcytail == 0:
+    return det
+
+  errbound = ccwerrboundC * detsum + resulterrbound * abs(det)
+  det += (acx * bcytail + bcy * acxtail) - (acy * bcxtail + bcx * acytail)
+  if det >= errbound or -det >= errbound:
+    return det
+
+  s1 = acxtail * bcy
+  c = splitter * acxtail
+  ahi = c - (c - acxtail)
+  alo = acxtail - ahi
+  c = splitter * bcy
+  bhi = c - (c - bcy)
+  blo = bcy - bhi
+  s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo)
+  t1 = acytail * bcx
+  c = splitter * acytail
+  ahi = c - (c - acytail)
+  alo = acytail - ahi
+  c = splitter * bcx
+  bhi = c - (c - bcx)
+  blo = bcx - bhi
+  t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo)
+  o_i = s0 - t0
+  bvirt = s0 - o_i
+  u[0] = s0 - (o_i + bvirt) + (bvirt - t0)
+  o_j = s1 + o_i
+  bvirt = o_j - s1
+  o_0 = s1 - (o_j - bvirt) + (o_i - bvirt)
+  o_i = o_0 - t1
+  bvirt = o_0 - o_i
+  u[1] = o_0 - (o_i + bvirt) + (bvirt - t1)
+  u3 = o_j + o_i
+  bvirt = u3 - o_j
+  u[2] = o_j - (u3 - bvirt) + (o_i - bvirt)
+  u[3] = u3
+  let C1len = sum(4, B, 4, u, C1)
+
+  s1 = acx * bcytail
+  c = splitter * acx
+  ahi = c - (c - acx)
+  alo = acx - ahi
+  c = splitter * bcytail
+  bhi = c - (c - bcytail)
+  blo = bcytail - bhi
+  s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo)
+  t1 = acy * bcxtail
+  c = splitter * acy
+  ahi = c - (c - acy)
+  alo = acy - ahi
+  c = splitter * bcxtail
+  bhi = c - (c - bcxtail)
+  blo = bcxtail - bhi
+  t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo)
+  o_i = s0 - t0
+  bvirt = s0 - o_i
+  u[0] = s0 - (o_i + bvirt) + (bvirt - t0)
+  o_j = s1 + o_i
+  bvirt = o_j - s1
+  o_0 = s1 - (o_j - bvirt) + (o_i - bvirt)
+  o_i = o_0 - t1
+  bvirt = o_0 - o_i
+  u[1] = o_0 - (o_i + bvirt) + (bvirt - t1)
+  u3 = o_j + o_i
+  bvirt = u3 - o_j
+  u[2] = o_j - (u3 - bvirt) + (o_i - bvirt)
+  u[3] = u3
+  let C2len = sum(C1len, C1, 4, u, C2)
+
+  s1 = acxtail * bcytail
+  c = splitter * acxtail
+  ahi = c - (c - acxtail)
+  alo = acxtail - ahi
+  c = splitter * bcytail
+  bhi = c - (c - bcytail)
+  blo = bcytail - bhi
+  s0 = alo * blo - (s1 - ahi * bhi - alo * bhi - ahi * blo)
+  t1 = acytail * bcxtail
+  c = splitter * acytail
+  ahi = c - (c - acytail)
+  alo = acytail - ahi
+  c = splitter * bcxtail
+  bhi = c - (c - bcxtail)
+  blo = bcxtail - bhi
+  t0 = alo * blo - (t1 - ahi * bhi - alo * bhi - ahi * blo)
+  o_i = s0 - t0
+  bvirt = s0 - o_i
+  u[0] = s0 - (o_i + bvirt) + (bvirt - t0)
+  o_j = s1 + o_i
+  bvirt = o_j - s1
+  o_0 = s1 - (o_j - bvirt) + (o_i - bvirt)
+  o_i = o_0 - t1
+  bvirt = o_0 - o_i
+  u[1] = o_0 - (o_i + bvirt) + (bvirt - t1)
+  u3 = o_j + o_i
+  bvirt = u3 - o_j
+  u[2] = o_j - (u3 - bvirt) + (o_i - bvirt)
+  u[3] = u3
+  let Dlen = sum(C2len, C2, 4, u, D)
+
+  return D[Dlen - 1]
 
 
 func orient2d*(ax, ay, bx, by, cx, cy: SomeFloat): int =
