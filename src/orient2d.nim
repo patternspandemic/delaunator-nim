@@ -4,7 +4,7 @@ import std/math
 let
   # from robust-predicates util.js
   epsilon = 1.1102230246251565e-16
-  splitter = 134217729
+  splitter = 134217729.0
   resulterrbound = (3 + 8 * epsilon) * epsilon
   # from robust-predicates orient2d.js
   ccwerrboundA = (3 + 16 * epsilon) * epsilon
@@ -105,7 +105,7 @@ proc sum(elen: int; e: openArray[float64]; flen: int; f: openArray[float64]; h: 
   return hindex
 
 
-func orient2dadapt(ax, ay, bx, by, cx, cy, detsum: SomeFloat): int =
+proc orient2dadapt(ax, ay, bx, by, cx, cy, detsum: SomeFloat): SomeFloat =
   var
     acxtail, acytail, bcxtail, bcytail: SomeFloat
     bvirt, c, ahi, alo, bhi, blo, o_i, o_j, o_0, s1, s0, t1, t0, u3: SomeFloat
@@ -265,7 +265,7 @@ func orient2dadapt(ax, ay, bx, by, cx, cy, detsum: SomeFloat): int =
   return D[Dlen - 1]
 
 
-func orient2d*(ax, ay, bx, by, cx, cy: SomeFloat): int =
+proc orient2d*(ax, ay, bx, by, cx, cy: SomeFloat): SomeFloat =
   let
     detleft = (ay - cy) * (bx - cx)
     detright = (ax - cx) * (by - cy)
