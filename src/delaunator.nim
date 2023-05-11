@@ -1,5 +1,6 @@
 
 import std/math
+from std/fenv import epsilon
 from std/algorithm import fill
 from orient2d import orient2d
 
@@ -407,6 +408,97 @@ proc update(this: var Delaunator) =
 
   #this.trianglesLen = 0 # already init'd in fromCoords
   discard u_addTriangle(this, i0, i1, i2, -1, -1, -1)
+
+  var
+    xp, yp = coords[0] # just so xp & yp are of correct type
+  for k in 0 ..< this.d_ids.len:
+    let
+      i = this.d_ids[k]
+      x = coords[2 * i]
+      y = coords[2 * i + 1]
+
+    # skip near-duplicate points
+    if k > 0 and abs(x - xp) <= epsilon(float64) and abs(y - yp) <= epsilon(float64): continue
+    xp = x
+    yp = y
+
+    # skip seed triangle points
+    if i == uint32(i0) or i == uint32(i1) or i == uint(i2): continue
+
+    # find a visible edge on the convex hull using edge hash
+    var
+      start = 0
+      key = u_hashKey(x, y)
+    for j in 0 ..< this.d_hashSize:
+      start = hullHash[(key + j) mod this.d_hashSize]
+      if start != -1 and uint32(start) != hullNext[start]: break
+
+    start = int(hullPrev[start])
+    var
+      e = start
+      q = int(hullNext[e])
+    while orient2d(x, y, coords[2 * e], coords[2 * e + 1], coords[2 * q], coords[2 * q + 1]) >= 0:
+      e = q
+      if e == start:
+        e = -1
+        break
+      q = int(hullNext[e])
+    if e == -1: continue # likely a near-duplicate point; skip it
+
+    # add the first triangle from the point
+    var t = u_addTriangle(this, e, int(i), int(hullNext[e]), -1, -1, int(hullTri[e]))
+
+    # recursively flip triangles from the point until they satisfy the Delaunay condition
+    var tmp = t + 2 # use mutable tmp to make u_legalize happy
+    hullTri[i] = u_legalize(this, tmp)
+    hullTri[e] = uint32(t) # keep track of boundary triangles on the hull
+    inc hullSize
+
+    # walk forward through the hull, adding more triangles and flipping recursively
+    var n = int(hullNext[e])
+    q = int(hullNext[n])
+    while orient2d(x, y, coords[2 * n], coords[2 * n + 1], coords[2 * q], coords[2 * q + 1]) < 0:
+      t = u_addTriangle(this, n, int(i), q, int(hullTri[i]), -1, int(hullTri[n]))
+      tmp = t + 2 # use mutable tmp to make u_legalize happy
+      hullTri[i] = u_legalize(this, tmp)
+      hullNext[n] = uint32(n) # mark as removed
+      dec hullSize
+      n = q
+      q = int(hullNext[n])
+
+    # walk backward from the other side, adding more triangles and flipping
+    if e == start:
+      q = int(hullPrev[e])
+      while orient2d(x, y, coords[2 * q], coords[2 * q + 1], coords[2 * e], coords[2 * e + 1]) < 0:
+        t = u_addTriangle(this, q, int(i), e, -1, int(hullTri[e]), int(hullTri[q]))
+        tmp = t + 2 # use mutable tmp to make u_legalize happy
+        discard u_legalize(this, tmp)
+        hullTri[q] = uint32(t)
+        hullNext[e] = uint32(e) # mark as removed
+        dec hullSize
+        e = q
+        q = int(hullPrev[e])
+
+    # update the hull indices
+    hullPrev[i] = uint32(e)
+    this.d_hullStart = e
+    hullPrev[n] = uint32(i)
+    hullNext[e] = uint32(i)
+    hullNext[i] = uint32(n)
+
+    # save the two new edges in the hash table
+    hullHash[u_hashKey(x, y)] = int32(i)
+    hullHash[u_hashKey(coords[2 * e], coords[2 * e + 1])] = int32(e)
+
+  this.hull = newSeq[uint32](hullSize)
+  var e = this.d_hullStart
+  for i in 0 ..< hullSize:
+    this.hull[i] = uint32(e)
+    e = int(hullNext[e])
+
+  # trim typed triangle mesh arrays
+  this.triangles = this.d_triangles[0 ..< this.trianglesLen]
+  this.halfedges = this.d_halfedges[0 ..< this.trianglesLen]
 
 
 proc fromCoords*[T](coordinates: seq[T]): Delaunator[T] =
