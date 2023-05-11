@@ -100,8 +100,8 @@ func circumcenter[F](ax, ay, bx, by, cx, cy: F): tuple[x, y: F] =
     cl = ex * ex + ey * ey
     d = 0.5 / (dx * ey - dy * ex)
 
-    x = ax + (ey * bl - dy * cl) * d
-    y = ay + (dx * cl - ex * bl) * d
+    x: F = ax + (ey * bl - dy * cl) * d
+    y: F = ay + (dx * cl - ex * bl) * d
 
   result = (x, y)
 
@@ -152,7 +152,7 @@ proc quicksort[F](ids: var seq[uint32]; dists: seq[F]; left, right: int) =
       quicksort(ids, dists, i, right)
 
 
-proc update(this: var Delaunator) =
+proc update[T](this: var Delaunator) =
   # Inner procs passed var 'this' param as 'uthis' due to the need to mutate it.
   # Simply closing over it results in 'cannot be captured / memory safety error'.
 
@@ -378,7 +378,7 @@ proc update(this: var Delaunator) =
     i2y = y
 
   let
-    (u_cx, u_cy) = circumcenter(i0x, i0y, i1x, i1y, i2x, i2y)
+    (u_cx, u_cy) = circumcenter[T](i0x, i0y, i1x, i1y, i2x, i2y)
 
   proc u_hashKey(x, y: SomeFloat): int32 =
     return int32(floor(pseudoAngle(x - u_cx, y - u_cy) * float(hashSize)) mod float(hashSize))
@@ -517,7 +517,7 @@ proc fromCoords*[T](coordinates: seq[T]): Delaunator[T] =
   result.d_hullHash = newSeq[int32](result.d_hashSize)
   result.d_ids = newSeq[uint32](n)
   result.d_dists = newSeq[T](n)
-  update(result)
+  update[T](result)
 
 
 proc fromPoints*[P, T](points: seq[P]; getX: proc (p: P): T = defaultGetX; getY: proc (p: P): T = defaultGetY): Delaunator[T] =
@@ -526,25 +526,36 @@ proc fromPoints*[P, T](points: seq[P]; getX: proc (p: P): T = defaultGetX; getY:
   for i, point in points:
       coords[2 * i] = getX(point)
       coords[2 * i + 1] = getY(point)
-  fromCoords(coords)
+  fromCoords[T](coords)
 
 
 
 when isMainModule:
   type
-    Point = tuple[x, y: float64]
+    Point32 = tuple[x, y: float32]
+    Point64 = tuple[x, y: float64]
 
   var
-    d: Delaunator[float64]
-    points: seq[Point]
+    d32: Delaunator[float32]
+    points32: seq[Point32]
+    d64: Delaunator[float64]
+    points64: seq[Point64]
 
-  #points = @[(1.0'f32, 1.0'f32), (-1.0'f32, 1.0'f32), (0.2'f32, 0.1'f32), (0.0'f32, -1.0'f32)]
-  points = @[(1.0, 1.0), (-1.0, 1.0), (0.2, 0.1), (0.0, -1.0)]
-  d = fromPoints[Point, float64](points)
+  points32 = @[(1.0'f32, 1.0'f32), (-1.0'f32, 1.0'f32), (0.2'f32, 0.1'f32), (0.0'f32, -1.0'f32)]
+  points64 = @[(1.0'f64, 1.0'f64), (-1.0'f64, 1.0'f64), (0.2'f64, 0.1'f64), (0.0'f64, -1.0'f64)]
+  d32 = fromPoints[Point32, float32](points32)
+  d64 = fromPoints[Point64, float64](points64)
 
-  echo repr(d)
+  echo repr(d32)
   echo ""
-  echo "Coords: :", d.coords
-  echo "Triangles: ", d.triangles
-  echo "Halfedges: ", d.halfedges
-  echo "Hull: ", d.hull
+  echo "Coords: :", d32.coords
+  echo "Triangles: ", d32.triangles
+  echo "Halfedges: ", d32.halfedges
+  echo "Hull: ", d32.hull
+  echo " - - - - - - - - "
+  echo repr(d64)
+  echo ""
+  echo "Coords: :", d64.coords
+  echo "Triangles: ", d64.triangles
+  echo "Halfedges: ", d64.halfedges
+  echo "Hull: ", d64.hull
