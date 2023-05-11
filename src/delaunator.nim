@@ -170,8 +170,8 @@ proc update(this: var Delaunator) =
       i = 0
       ar = 0'i32
 
-    while true:
-      block outerWhile:
+    block outerWhile:
+      while true:
         let b = halfedges[a]
 
         #[
@@ -538,10 +538,13 @@ when isMainModule:
     d: Delaunator[float64]
     points: seq[Point]
 
-  #points = @[(1.0'f32, 1.0'f32), (-1.0'f32, 1.0'f32), (0.0'f32, -1.0'f32)]
-  points = @[(1.0, 1.0), (-1.0, 1.0), (0.0, -1.0)]
+  #points = @[(1.0'f32, 1.0'f32), (-1.0'f32, 1.0'f32), (0.2'f32, 0.1'f32), (0.0'f32, -1.0'f32)]
+  points = @[(1.0, 1.0), (-1.0, 1.0), (0.2, 0.1), (0.0, -1.0)]
   d = fromPoints[Point, float64](points)
 
   echo repr(d)
+  echo ""
+  echo "Coords: :", d.coords
   echo "Triangles: ", d.triangles
   echo "Halfedges: ", d.halfedges
+  echo "Hull: ", d.hull
