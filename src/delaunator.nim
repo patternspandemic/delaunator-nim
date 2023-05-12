@@ -1,15 +1,19 @@
 
-import std/math
+import std/math, std/tables
 from std/fenv import epsilon
 from std/algorithm import fill
-from orient2d import orient2d
 
+from orient2d import orient2d
+import helpers
+
+export helpers
 
 var EDGE_STACK: array[512, uint32]
 
 type
   Delaunator*[T] = ref object
     coords*: seq[T]
+    minX*, minY*, maxX*, maxY*: T # bounds of coords
     triangles*: seq[uint32] # trimmed version of d_triangles
     halfedges*: seq[int32]  # trimmed version of d_halfedges
     hull*: seq[uint32]
@@ -30,6 +34,10 @@ type
     # Temporary arrays for sorting points
     d_ids:   seq[uint32]
     d_dists: seq[T]
+
+    # For fast lookup of point id to leftmost imcoming halfedge id
+    # Useful for retrieval of adhoc voronoi regions.
+    d_pointToLeftmostHalfedgeIndex: Table[uint32, int32]
 
 
 func defaultGetX[P, T](p: P): T = p[0]
@@ -277,24 +285,23 @@ proc update[T](this: var Delaunator) =
     hashSize = this.d_hashSize #
   let n = ashr(coords.len, 1)
 
-  var
-    minX = Inf
-    minY = Inf
-    maxX = NegInf
-    maxY = NegInf
+  this.minX = Inf
+  this.minY = Inf
+  this.maxX = NegInf
+  this.maxY = NegInf
 
   for i in 0 ..< n:
     let
       x = coords[2 * i]
       y = coords[2 * i + 1]
-    if x < minX: minX = x
-    if y < minY: minY = y
-    if x > maxX: maxX = x
-    if y > maxY: maxY = y
+    if x < this.minX: this.minX = x
+    if y < this.minY: this.minY = y
+    if x > this.maxX: this.maxX = x
+    if y > this.maxY: this.maxY = y
     this.d_ids[i] = uint32(i)
   let
-    cx = (minX + maxX) / 2
-    cy = (minY + maxY) / 2
+    cx = (this.minX + this.maxX) / 2
+    cy = (this.minY + this.maxY) / 2
 
   var
     i0, i1, i2: int
@@ -495,6 +502,16 @@ proc update[T](this: var Delaunator) =
   for i in 0 ..< hullSize:
     this.hull[i] = uint32(e)
     e = int(hullNext[e])
+
+  # Build the index of point id to leftmost incoming halfedge
+  clear(this.d_pointToLeftmostHalfedgeIndex)
+  var he: int32 = 0
+  while true:
+    let endpoint = this.d_triangles[nextHalfedge(he)]
+    if not hasKey(this.d_pointToLeftmostHalfedgeIndex, endpoint) or this.d_halfedges[he] == -1:
+      this.d_pointToLeftmostHalfedgeIndex[endpoint] = he
+    inc he
+    if not he < this.trianglesLen: break
 
   # trim typed triangle mesh arrays
   this.triangles = this.d_triangles[0 ..< this.trianglesLen]
