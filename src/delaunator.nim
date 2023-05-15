@@ -1,12 +1,11 @@
+#TODO: inline things
 
 import std/math, std/tables
 from std/fenv import epsilon
 from std/algorithm import fill
 
 from orient2d import orient2d
-import helpers
 
-export helpers
 
 var EDGE_STACK: array[512, uint32]
 
@@ -158,6 +157,9 @@ proc quicksort[F](ids: var seq[uint32]; dists: seq[F]; left, right: int) =
     else:
       quicksort(ids, dists, left, j - 1)
       quicksort(ids, dists, i, right)
+
+
+include helpers # some depend upon above
 
 
 proc update[T](this: var Delaunator) =
