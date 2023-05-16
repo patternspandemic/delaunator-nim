@@ -368,7 +368,7 @@ proc update[T](this: var Delaunator) =
           hull[j] = uint32(id)
           inc j
           d0 = d
-      this.hull = hull[0 .. j]
+      this.hull = hull[0 .. j] # TODO: Maybe ..< ?
       this.triangles = newSeqOfCap[uint32](0)
       this.halfedges = newSeqOfCap[int32](0)
       return

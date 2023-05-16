@@ -12,9 +12,9 @@ bounds
 - prevHalfedge
 - pointIdsOfTriangle
 - triangleIdsAdjacentToTriangle
-iterPoints
-iterHullPoints
-iterHullEdges
+- iterPoints
+- iterHullPoints
+- iterHullEdges
 - iterTriangleEdges
 - iterTriangles
 - triangleCircumenter
@@ -75,8 +75,8 @@ iterator iterTriangleEdges*(d: Delaunator): tuple[e: int32; p, q: array[2, SomeF
       let
         pid = d.triangles[e]
         qid = d.triangles[nextHalfedge(e)]
-        p: array[2, SomeFloat] = d.coords[(2 * pid)..(2 * pid + 2)]
-        q: array[2, SomeFloat] = d.coords[(2 * qid)..(2 * qid + 2)]
+        p: array[2, SomeFloat] = d.coords[(2 * pid) ..< (2 * pid + 2)]
+        q: array[2, SomeFloat] = d.coords[(2 * qid) ..< (2 * qid + 2)]
       yield (e, p, q)
     if not e < d.triangles.len: break
     inc e
@@ -95,9 +95,9 @@ iterator iterTriangles*(d: Delaunator): tuple[t: int32; p1, p2, p3: array[2, Som
   while true:
     let
       pids = pointIdsOfTriangle(d, t)
-      p1: array[2, SomeFloat] = d.coords[(2 * pids[0])..(2 * pids[0] + 2)]
-      p2: array[2, SomeFloat] = d.coords[(2 * pids[1])..(2 * pids[1] + 2)]
-      p3: array[2, SomeFloat] = d.coords[(2 * pids[2])..(2 * pids[2] + 2)]
+      p1: array[2, SomeFloat] = d.coords[(2 * pids[0]) ..< (2 * pids[0] + 2)]
+      p2: array[2, SomeFloat] = d.coords[(2 * pids[1]) ..< (2 * pids[1] + 2)]
+      p3: array[2, SomeFloat] = d.coords[(2 * pids[2]) ..< (2 * pids[2] + 2)]
     yield (t, p1, p2, p3)
     if not t < (d.triangles.len / 3): break
     inc t
@@ -116,9 +116,9 @@ func triangleCircumcenter*(d: Delaunator, t: int32): array[2, SomeFLoat] =
   ## The circumcenter of triangle with id `t`.
   let
     pids = pointIdsOfTriangle(d, t)
-    p1: array[2, SomeFloat] = d.coords[(2 * pids[0])..(2 * pids[0] + 2)]
-    p2: array[2, SomeFloat] = d.coords[(2 * pids[1])..(2 * pids[1] + 2)]
-    p3: array[2, SomeFloat] = d.coords[(2 * pids[2])..(2 * pids[2] + 2)]
+    p1: array[2, SomeFloat] = d.coords[(2 * pids[0]) ..< (2 * pids[0] + 2)]
+    p2: array[2, SomeFloat] = d.coords[(2 * pids[1]) ..< (2 * pids[1] + 2)]
+    p3: array[2, SomeFloat] = d.coords[(2 * pids[2]) ..< (2 * pids[2] + 2)]
     (cx, cy) = circumcenter(p1[0], p1[1], p2[0], p2[1], p3[0], p3[1])
   return [cx, cy]
 
@@ -193,3 +193,43 @@ func voronoiRegion*(d: Delaunator, p: uint32): tuple[p: uint32, verts: seq[array
     triangleIds = map(edgeIds, proc(h: int32): int32 = triangleIdOfEdge(h))
     vertices = map(triangleIds, proc(t: int32): array[2, SomeFloat] = triangleCircumcenter(d, t))
   return (p, vertices)
+
+
+func iterPoints*(d: Delaunator): tuple[id: int32, p: array[2, SomeFloat]] =
+  ## Provides an iterator yielding values for each point of the triangulation.
+  ## The values yielded are the id of the point, and an array describing the
+  ## point's location.
+  var p = 0
+  while true:
+    yield (p, d.coords[(2 * p) ..< (2 * p + 2)])
+    if not p < (d.coords.len / 2): break
+    inc p
+
+
+func iterHullPoints*(d: Delaunator): tuple[id: int32, p: array[2, SomeFloat]] =
+  ## Provides an iterator yielding values for each point of the triangulation's
+  ## hull. The values yielded are the id of the point in `d.hull`, and an array
+  ## describing the point's location.
+  var p = 0
+  while true:
+    yield (p, d.coords[(2 * d.hull[p]) ..< (2 * d.hull[p] + 2)])
+    if not p < d.hull.len: break
+    inc p
+
+
+# FIXME: Not sure this works
+func iterHullEdges*(d: Delaunator): tuple[e: int32; p, q: array[2, SomeFloat]] =
+  ## Provides an iterator yielding values for each edge of the triangulation's hull.
+  ## The values yielded are the id of the halfedge running from p to q, an array
+  ## describing the point the edge starts at, and an array describing the point
+  ## the edge ends at.
+  var e = 0
+  while true:
+    let
+      pid = d.hull[e]
+      qid = d.d_hullNext[pid] # d_hullNext may not be accessable?
+      p: array[2, SomeFloat] = d.coords[(2 * pid) ..< (2 * pid + 2)]
+      q: array[2, SomeFloat] = d.coords[(2 * qid) ..< (2 * qid + 2)]
+    yield (e, p, q)
+    if not e < d.hull.len: break
+    inc e
