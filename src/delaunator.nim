@@ -48,9 +48,13 @@ proc swap(arr: var seq[uint32]; i, j: int) =
   arr[j] = tmp
 
 
+# monotonically increases with real angle, but doesn't need expensive trigonometry
 func pseudoAngle[F](dx, dy: F): F =
   let p = dx / (dx.abs + dy.abs)
-  result = (if dy > 0: 3 - p else: 1 + p)
+  if dy > 0.0:
+    result = (3.0 - p) / 4.0
+  else:
+    result = (1.0 + p) / 4.0
 
 
 func dist[F](ax, ay, bx, by: F): F =
@@ -141,10 +145,10 @@ proc quicksort[F](ids: var seq[uint32]; dists: seq[F]; left, right: int) =
     while true:
       while true:
         inc i
-        if dists[ids[i]] < tempDist: break
+        if not (dists[ids[i]] < tempDist): break
       while true:
         dec j
-        if dists[ids[j]] > tempDist: break
+        if not (dists[ids[j]] > tempDist): break
       if j < i: break
       swap(ids, i, j)
     ids[left + 1] = ids[j]
@@ -172,6 +176,7 @@ proc update[T](this: var Delaunator) =
 
   # Lots of int type casting due to disconnect between indexing and unsigned storage types used for halfedges/hull checks.
   proc u_legalize(uthis: var Delaunator; a: var int32): uint32 =
+    echo "legalizing..."
     var
       triangles = uthis.d_triangles
       halfedges = uthis.d_halfedges
@@ -180,7 +185,9 @@ proc update[T](this: var Delaunator) =
       ar = 0'i32
 
     block outerWhile:
+      echo "startOUTER"
       while true:
+        #echo "inOUTER"
         let b = halfedges[a]
 
         #[
@@ -201,8 +208,8 @@ proc update[T](this: var Delaunator) =
 
         ]#
 
-        let a0 = a - a %% 3
-        ar = a0 + (a + 2) %% 3
+        let a0 = a - (a mod 3)
+        ar = a0 + ((a + 2) mod 3)
 
         if b == -1: # convex hull edge
           if i == 0: break
@@ -211,9 +218,9 @@ proc update[T](this: var Delaunator) =
           continue
 
         let
-          b0 = b - b %% 3
-          al = a0 + (a + 1) %% 3
-          bl = b0 + (b + 2) %% 3
+          b0 = b - (b mod 3)
+          al = a0 + ((a + 1) mod 3)
+          bl = b0 + ((b + 2) mod 3)
 
           p0 = triangles[ar]
           pr = triangles[a]
@@ -235,17 +242,20 @@ proc update[T](this: var Delaunator) =
           # edge swapped on the other side of the hull (rare); fix the halfedge reference
           if hbl == -1:
             var e = uthis.d_hullStart
-            while true:
+            echo "startINNER"
+            while true: #FIXME: issue13, issue44 hang here
+#              echo "inINNER: e = " & $e & ", hullStart = " & $uthis.d_hullStart
               if int32(uthis.d_hullTri[e]) == bl:
                 uthis.d_hullTri[e] = uint32(a)
-                break outerWhile
+                break #outerWhile
               e = int32(uthis.d_hullPrev[e])
               if e == uthis.d_hullStart: break
+            echo "outINNER"
           u_link(uthis, a, hbl)
           u_link(uthis, b, halfedges[ar])
           u_link(uthis, ar, bl)
 
-          let br = b0 + (b + 1) %% 3
+          let br = b0 + ((b + 1) mod 3)
 
           # don't worry about hitting the cap: it can only happen on extremely degenerate input
           if i < EDGE_STACK.len:
@@ -286,6 +296,7 @@ proc update[T](this: var Delaunator) =
     hashSize = this.d_hashSize #
   let n = ashr(coords.len, 1)
 
+  # populate an array of point indices; calculate input data bbox
   this.minX = Inf
   this.minY = Inf
   this.maxX = NegInf
@@ -317,7 +328,7 @@ proc update[T](this: var Delaunator) =
       minDist = d
 
   if coords.len > 0:
-    i0x = coords[2 * i0] #FIXME: index out of bounds with empty coords, for i{0,1,2}{x,y}
+    i0x = coords[2 * i0]
     i0y = coords[2 * i0 + 1]
 
   # find the point closest to the seed
@@ -392,6 +403,7 @@ proc update[T](this: var Delaunator) =
   let
     (u_cx, u_cy) = circumcenter[T](i0x, i0y, i1x, i1y, i2x, i2y)
 
+  # defined here to close over u_cx, u_cy
   proc u_hashKey(x, y: SomeFloat): int32 =
     return int32(floor(pseudoAngle(x - u_cx, y - u_cy) * float(hashSize)) mod float(hashSize))
 
@@ -599,7 +611,13 @@ when isMainModule:
   ]#
 
   include "../tests/fixtures/ukraine"
+  include "../tests/fixtures/issue13"
+  #include "../tests/fixtures/robustness1"
 
   var d = fromPoints[array[2, int], float64](ukraine)
-  echo "Coords type: ", typeof(d.coords)
+  #echo "Coords type: ", typeof(d.coords)
   #echo repr(d)
+  echo "Coords: :", d.coords
+  echo "Triangles: ", d.triangles
+  echo "Halfedges: ", d.halfedges
+  echo "Hull: ", d.hull
