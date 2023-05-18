@@ -1,0 +1,6 @@
+# ignore files with no extention:
+*
+!*/
+!*.*
+nimcache/
+testresults/

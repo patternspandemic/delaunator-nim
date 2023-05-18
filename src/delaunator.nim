@@ -176,19 +176,13 @@ proc update[T](this: var Delaunator) =
 
   # Lots of int type casting due to disconnect between indexing and unsigned storage types used for halfedges/hull checks.
   proc u_legalize(uthis: var Delaunator; a: var int32): uint32 =
-    echo "legalizing..."
     var
-      triangles = uthis.d_triangles
-      halfedges = uthis.d_halfedges
-      coords = uthis.coords
       i = 0
       ar = 0'i32
 
-    block outerWhile:
-      echo "startOUTER"
+    block outerWhile: # TODO: remove block
       while true:
-        #echo "inOUTER"
-        let b = halfedges[a]
+        let b = uthis.d_halfedges[a]
 
         #[
         if the pair of triangles doesn't satisfy the Delaunay condition
@@ -222,37 +216,34 @@ proc update[T](this: var Delaunator) =
           al = a0 + ((a + 1) mod 3)
           bl = b0 + ((b + 2) mod 3)
 
-          p0 = triangles[ar]
-          pr = triangles[a]
-          pl = triangles[al]
-          p1 = triangles[bl]
+          p0 = uthis.d_triangles[ar]
+          pr = uthis.d_triangles[a]
+          pl = uthis.d_triangles[al]
+          p1 = uthis.d_triangles[bl]
 
           illegal = inCircle(
-            coords[2 * p0], coords[2 * p0 + 1],
-            coords[2 * pr], coords[2 * pr + 1],
-            coords[2 * pl], coords[2 * pl + 1],
-            coords[2 * p1], coords[2 * p1 + 1])
+            uthis.coords[2 * p0], uthis.coords[2 * p0 + 1],
+            uthis.coords[2 * pr], uthis.coords[2 * pr + 1],
+            uthis.coords[2 * pl], uthis.coords[2 * pl + 1],
+            uthis.coords[2 * p1], uthis.coords[2 * p1 + 1])
 
         if illegal:
-          triangles[a] = p1
-          triangles[b] = p0
+          uthis.d_triangles[a] = p1
+          uthis.d_triangles[b] = p0
 
-          let hbl = halfedges[bl]
+          let hbl = uthis.d_halfedges[bl]
 
           # edge swapped on the other side of the hull (rare); fix the halfedge reference
           if hbl == -1:
             var e = uthis.d_hullStart
-            echo "startINNER"
             while true: #FIXME: issue13, issue44 hang here
-#              echo "inINNER: e = " & $e & ", hullStart = " & $uthis.d_hullStart
               if int32(uthis.d_hullTri[e]) == bl:
                 uthis.d_hullTri[e] = uint32(a)
                 break #outerWhile
               e = int32(uthis.d_hullPrev[e])
               if e == uthis.d_hullStart: break
-            echo "outINNER"
           u_link(uthis, a, hbl)
-          u_link(uthis, b, halfedges[ar])
+          u_link(uthis, b, uthis.d_halfedges[ar])
           u_link(uthis, ar, bl)
 
           let br = b0 + ((b + 1) mod 3)
@@ -287,14 +278,7 @@ proc update[T](this: var Delaunator) =
 
 
   # The main update code begins here (nested procs mostly above)
-  var
-    coords = this.coords
-    hullPrev = this.d_hullPrev
-    hullNext = this.d_hullNext
-    hullTri = this.d_hullTri
-    hullHash = this.d_hullHash
-    hashSize = this.d_hashSize #
-  let n = ashr(coords.len, 1)
+  let n = ashr(this.coords.len, 1)
 
   # populate an array of point indices; calculate input data bbox
   this.minX = Inf
@@ -304,8 +288,8 @@ proc update[T](this: var Delaunator) =
 
   for i in 0 ..< n:
     let
-      x = coords[2 * i]
-      y = coords[2 * i + 1]
+      x = this.coords[2 * i]
+      y = this.coords[2 * i + 1]
     if x < this.minX: this.minX = x
     if y < this.minY: this.minY = y
     if x > this.maxX: this.maxX = x
@@ -322,49 +306,49 @@ proc update[T](this: var Delaunator) =
   # pick a seed point close to the center
   var minDist = Inf
   for i in 0 ..< n:
-    let d = dist(cx, cy, coords[2 * i], coords[2 * i + 1])
+    let d = dist(cx, cy, this.coords[2 * i], this.coords[2 * i + 1])
     if d < minDist:
       i0 = i
       minDist = d
 
-  if coords.len > 0:
-    i0x = coords[2 * i0]
-    i0y = coords[2 * i0 + 1]
+  if this.coords.len > 0:
+    i0x = this.coords[2 * i0]
+    i0y = this.coords[2 * i0 + 1]
 
   # find the point closest to the seed
   minDist = Inf
   for i in 0 ..< n:
     if i == i0: continue
-    let d = dist(i0x, i0y, coords[2 * i], coords[2 * i + 1])
+    let d = dist(i0x, i0y, this.coords[2 * i], this.coords[2 * i + 1])
     if d < minDist and d > 0:
       i1 = i
       minDist = d
 
-  if coords.len > 0:
-    i1x = coords[2 * i1]
-    i1y = coords[2 * i1 + 1]
+  if this.coords.len > 0:
+    i1x = this.coords[2 * i1]
+    i1y = this.coords[2 * i1 + 1]
 
   var minRadius = Inf
 
   # find the third point which forms the smallest circumcircle with the first two
   for i in 0 ..< n:
     if i == i0 or i == i1: continue
-    let r = circumradius(i0x, i0y, i1x, i1y, coords[2 * i], coords[2 * i + 1])
+    let r = circumradius(i0x, i0y, i1x, i1y, this.coords[2 * i], this.coords[2 * i + 1])
     if r < minRadius:
       i2 = i
       minRadius = r
 
-  if coords.len > 0:
-    i2x = coords[2 * i2]
-    i2y = coords[2 * i2 + 1]
+  if this.coords.len > 0:
+    i2x = this.coords[2 * i2]
+    i2y = this.coords[2 * i2 + 1]
 
   if minRadius == Inf:
     # order collinear points by dx (or dy if all x are identical)
     # and return the list as a hull
     for i in 0 ..< n:
       let
-        xcrd = coords[2 * i] - coords[0]
-        ycrd = coords[2 * i + 1] - coords[1]
+        xcrd = this.coords[2 * i] - this.coords[0]
+        ycrd = this.coords[2 * i + 1] - this.coords[1]
       if xcrd != 0:
         this.d_dists[i] = xcrd
       else:
@@ -404,11 +388,11 @@ proc update[T](this: var Delaunator) =
     (u_cx, u_cy) = circumcenter[T](i0x, i0y, i1x, i1y, i2x, i2y)
 
   # defined here to close over u_cx, u_cy
-  proc u_hashKey(x, y: SomeFloat): int32 =
-    return int32(floor(pseudoAngle(x - u_cx, y - u_cy) * float(hashSize)) mod float(hashSize))
+  proc u_hashKey(uthis: var Delaunator; x, y: SomeFloat): int32 =
+    return int32(floor(pseudoAngle(x - u_cx, y - u_cy) * float(uthis.d_hashSize)) mod float(uthis.d_hashSize))
 
   for i in 0 ..< n:
-    this.d_dists[i] = dist(coords[2 * i], coords[2 * i + 1], u_cx, u_cy)
+    this.d_dists[i] = dist(this.coords[2 * i], this.coords[2 * i + 1], u_cx, u_cy)
 
   # sort the points by distance from the seed triangle circumcenter
   quicksort(this.d_ids, this.d_dists, 0, n - 1)
@@ -417,29 +401,29 @@ proc update[T](this: var Delaunator) =
   this.d_hullStart = i0
   var hullSize = 3
 
-  hullNext[i0] = uint32(i1); hullPrev[i2] = uint32(i1)
-  hullNext[i1] = uint32(i2); hullPrev[i0] = uint32(i2)
-  hullNext[i2] = uint32(i0); hullPrev[i1] = uint32(i0)
+  this.d_hullNext[i0] = uint32(i1); this.d_hullPrev[i2] = uint32(i1)
+  this.d_hullNext[i1] = uint32(i2); this.d_hullPrev[i0] = uint32(i2)
+  this.d_hullNext[i2] = uint32(i0); this.d_hullPrev[i1] = uint32(i0)
 
-  hullTri[i0] = 0
-  hullTri[i1] = 1
-  hullTri[i2] = 2
+  this.d_hullTri[i0] = 0
+  this.d_hullTri[i1] = 1
+  this.d_hullTri[i2] = 2
 
-  hullHash.fill(-1)
-  hullHash[u_hashKey(i0x, i0y)] = int32(i0)
-  hullHash[u_hashKey(i1x, i1y)] = int32(i1)
-  hullHash[u_hashKey(i2x, i2y)] = int32(i2)
+  this.d_hullHash.fill(-1)
+  this.d_hullHash[u_hashKey(this, i0x, i0y)] = int32(i0)
+  this.d_hullHash[u_hashKey(this, i1x, i1y)] = int32(i1)
+  this.d_hullHash[u_hashKey(this, i2x, i2y)] = int32(i2)
 
   #this.trianglesLen = 0 # already init'd in fromCoords
   discard u_addTriangle(this, i0, i1, i2, -1, -1, -1)
 
   var
-    xp, yp = coords[0] # just so xp & yp are of correct type
+    xp, yp = this.coords[0] # just so xp & yp are of correct type
   for k in 0 ..< this.d_ids.len:
     let
       i = this.d_ids[k]
-      x = coords[2 * i]
-      y = coords[2 * i + 1]
+      x = this.coords[2 * i]
+      y = this.coords[2 * i + 1]
 
     # skip near-duplicate points
     if k > 0 and abs(x - xp) <= epsilon(float64) and abs(y - yp) <= epsilon(float64): continue
@@ -452,73 +436,73 @@ proc update[T](this: var Delaunator) =
     # find a visible edge on the convex hull using edge hash
     var
       start = 0
-      key = u_hashKey(x, y)
+      key = u_hashKey(this, x, y)
     for j in 0 ..< this.d_hashSize:
-      start = hullHash[(key + j) mod this.d_hashSize]
-      if start != -1 and uint32(start) != hullNext[start]: break
+      start = this.d_hullHash[(key + j) mod this.d_hashSize]
+      if start != -1 and uint32(start) != this.d_hullNext[start]: break
 
-    start = int(hullPrev[start])
+    start = int(this.d_hullPrev[start])
     var
       e = start
-      q = int(hullNext[e])
-    while orient2d(x, y, coords[2 * e], coords[2 * e + 1], coords[2 * q], coords[2 * q + 1]) >= 0:
+      q = int(this.d_hullNext[e])
+    while orient2d(x, y, this.coords[2 * e], this.coords[2 * e + 1], this.coords[2 * q], this.coords[2 * q + 1]) >= 0:
       e = q
       if e == start:
         e = -1
         break
-      q = int(hullNext[e])
+      q = int(this.d_hullNext[e])
     if e == -1: continue # likely a near-duplicate point; skip it
 
     # add the first triangle from the point
-    var t = u_addTriangle(this, e, int(i), int(hullNext[e]), -1, -1, int(hullTri[e]))
+    var t = u_addTriangle(this, e, int(i), int(this.d_hullNext[e]), -1, -1, int(this.d_hullTri[e]))
 
     # recursively flip triangles from the point until they satisfy the Delaunay condition
     var tmp = t + 2 # use mutable tmp to make u_legalize happy
-    hullTri[i] = u_legalize(this, tmp)
-    hullTri[e] = uint32(t) # keep track of boundary triangles on the hull
+    this.d_hullTri[i] = u_legalize(this, tmp)
+    this.d_hullTri[e] = uint32(t) # keep track of boundary triangles on the hull
     inc hullSize
 
     # walk forward through the hull, adding more triangles and flipping recursively
-    var n = int(hullNext[e])
-    q = int(hullNext[n])
-    while orient2d(x, y, coords[2 * n], coords[2 * n + 1], coords[2 * q], coords[2 * q + 1]) < 0:
-      t = u_addTriangle(this, n, int(i), q, int(hullTri[i]), -1, int(hullTri[n]))
+    var n = int(this.d_hullNext[e])
+    q = int(this.d_hullNext[n])
+    while orient2d(x, y, this.coords[2 * n], this.coords[2 * n + 1], this.coords[2 * q], this.coords[2 * q + 1]) < 0:
+      t = u_addTriangle(this, n, int(i), q, int(this.d_hullTri[i]), -1, int(this.d_hullTri[n]))
       tmp = t + 2 # use mutable tmp to make u_legalize happy
-      hullTri[i] = u_legalize(this, tmp)
-      hullNext[n] = uint32(n) # mark as removed
+      this.d_hullTri[i] = u_legalize(this, tmp)
+      this.d_hullNext[n] = uint32(n) # mark as removed
       dec hullSize
       n = q
-      q = int(hullNext[n])
+      q = int(this.d_hullNext[n])
 
     # walk backward from the other side, adding more triangles and flipping
     if e == start:
-      q = int(hullPrev[e])
-      while orient2d(x, y, coords[2 * q], coords[2 * q + 1], coords[2 * e], coords[2 * e + 1]) < 0:
-        t = u_addTriangle(this, q, int(i), e, -1, int(hullTri[e]), int(hullTri[q]))
+      q = int(this.d_hullPrev[e])
+      while orient2d(x, y, this.coords[2 * q], this.coords[2 * q + 1], this.coords[2 * e], this.coords[2 * e + 1]) < 0:
+        t = u_addTriangle(this, q, int(i), e, -1, int(this.d_hullTri[e]), int(this.d_hullTri[q]))
         tmp = t + 2 # use mutable tmp to make u_legalize happy
         discard u_legalize(this, tmp)
-        hullTri[q] = uint32(t)
-        hullNext[e] = uint32(e) # mark as removed
+        this.d_hullTri[q] = uint32(t)
+        this.d_hullNext[e] = uint32(e) # mark as removed
         dec hullSize
         e = q
-        q = int(hullPrev[e])
+        q = int(this.d_hullPrev[e])
 
     # update the hull indices
-    hullPrev[i] = uint32(e)
+    this.d_hullPrev[i] = uint32(e)
     this.d_hullStart = e
-    hullPrev[n] = uint32(i)
-    hullNext[e] = uint32(i)
-    hullNext[i] = uint32(n)
+    this.d_hullPrev[n] = uint32(i)
+    this.d_hullNext[e] = uint32(i)
+    this.d_hullNext[i] = uint32(n)
 
     # save the two new edges in the hash table
-    hullHash[u_hashKey(x, y)] = int32(i)
-    hullHash[u_hashKey(coords[2 * e], coords[2 * e + 1])] = int32(e)
+    this.d_hullHash[u_hashKey(this, x, y)] = int32(i)
+    this.d_hullHash[u_hashKey(this, this.coords[2 * e], this.coords[2 * e + 1])] = int32(e)
 
   this.hull = newSeq[uint32](hullSize)
   var e = this.d_hullStart
   for i in 0 ..< hullSize:
     this.hull[i] = uint32(e)
-    e = int(hullNext[e])
+    e = int(this.d_hullNext[e])
 
   # Build the index of point id to leftmost incoming halfedge
   clear(this.d_pointToLeftmostHalfedgeIndex)
@@ -610,14 +594,14 @@ when isMainModule:
   echo "Hull: ", d64.hull
   ]#
 
-  include "../tests/fixtures/ukraine"
-  include "../tests/fixtures/issue13"
-  #include "../tests/fixtures/robustness1"
+  #include "../tests/fixtures/ukraine"
+  #include "../tests/fixtures/issue44"
+  include "../tests/fixtures/robustness4"
 
-  var d = fromPoints[array[2, int], float64](ukraine)
+  var d = fromPoints[array[2, float64], float64](robustness4)
   #echo "Coords type: ", typeof(d.coords)
-  #echo repr(d)
-  echo "Coords: :", d.coords
-  echo "Triangles: ", d.triangles
-  echo "Halfedges: ", d.halfedges
-  echo "Hull: ", d.hull
+  echo repr(d)
+  # echo "Coords: :", d.coords
+  # echo "Triangles: ", d.triangles
+  # echo "Halfedges: ", d.halfedges
+  # echo "Hull: ", d.hull
