@@ -1,6 +1,9 @@
+
+# Up to date with mapbox/Delaunator at 103acb4564a36ad2dff11dc0135a348f4e8fc149 May 27, 2032
+
 #TODO: inline things
 
-import std/math, std/tables
+import std/[math, tables]
 from std/fenv import epsilon
 from std/algorithm import fill
 
@@ -37,10 +40,6 @@ type
     # For fast lookup of point id to leftmost imcoming halfedge id
     # Useful for retrieval of adhoc voronoi regions.
     d_pointToLeftmostHalfedgeIndex: Table[uint32, int32]
-
-
-func defaultGetX[P, T](p: P): T = p[0]
-func defaultGetY[P, T](p: P): T = p[1]
 
 
 proc swap(arr: var seq[uint32]; i, j: int) =
@@ -307,6 +306,7 @@ proc update[T](this: var Delaunator) =
 
   var
     i0, i1, i2: int
+    i0x, i0y, i1x, i1y, i2x, i2y = T(0) # Temp init to something for case of empty coords.
 
   # pick a seed point close to the center
   var minDist = Inf
@@ -315,8 +315,9 @@ proc update[T](this: var Delaunator) =
     if d < minDist:
       i0 = i
       minDist = d
-  let
-    i0x = coords[2 * i0]
+
+  if coords.len > 0:
+    i0x = coords[2 * i0] #FIXME: index out of bounds with empty coords, for i{0,1,2}{x,y}
     i0y = coords[2 * i0 + 1]
 
   # find the point closest to the seed
@@ -327,7 +328,8 @@ proc update[T](this: var Delaunator) =
     if d < minDist and d > 0:
       i1 = i
       minDist = d
-  var
+
+  if coords.len > 0:
     i1x = coords[2 * i1]
     i1y = coords[2 * i1 + 1]
 
@@ -340,7 +342,8 @@ proc update[T](this: var Delaunator) =
     if r < minRadius:
       i2 = i
       minRadius = r
-  var
+
+  if coords.len > 0:
     i2x = coords[2 * i2]
     i2y = coords[2 * i2 + 1]
 
@@ -355,23 +358,23 @@ proc update[T](this: var Delaunator) =
         this.d_dists[i] = xcrd
       else:
         this.d_dists[i] = ycrd
-      quicksort(this.d_ids, this.d_dists, 0, n - 1)
-      var hull = newSeq[uint32](n)
-      var
-        j = 0
-        d0 = NegInf
-      for i in 0 ..< n:
-        let
-          id = this.d_ids[i]
-          d = this.d_dists[id]
-        if d > d0:
-          hull[j] = uint32(id)
-          inc j
-          d0 = d
-      this.hull = hull[0 .. j] # TODO: Maybe ..< ?
-      this.triangles = newSeqOfCap[uint32](0)
-      this.halfedges = newSeqOfCap[int32](0)
-      return
+    quicksort(this.d_ids, this.d_dists, 0, n - 1)
+    var hull = newSeq[uint32](n)
+    var
+      j = 0
+      d0 = NegInf
+    for i in 0 ..< n:
+      let
+        id = this.d_ids[i]
+        d = this.d_dists[id]
+      if d > d0:
+        hull[j] = uint32(id)
+        inc j
+        d0 = d
+    this.hull = hull[0 ..< j]
+    this.triangles = newSeqOfCap[uint32](0)
+    this.halfedges = newSeqOfCap[int32](0)
+    return
 
   # swap the order of the seed points for counter-clockwise orientation
   if orient2d(i0x, i0y, i1x, i1y, i2x, i2y) < 0:
@@ -521,6 +524,10 @@ proc update[T](this: var Delaunator) =
 
 
 proc fromCoords*[T](coordinates: seq[T]): Delaunator[T] =
+  # Could not figure out how to constrain T to SomeFloat, so using cound to test coordinates as
+  # a seq[float32|float64]. Errors for example when coordinates is seq[int32].
+  when not compiles(count[T](coordinates, 0.0)):
+    {.error: "Coordinates must be seq[float32] or seq[float64] but got " & $typeof(coordinates) .}
   result = Delaunator[T](coords: coordinates)
   let
     n = ashr(coordinates.len, 1) # n points
@@ -539,6 +546,16 @@ proc fromCoords*[T](coordinates: seq[T]): Delaunator[T] =
   update[T](result)
 
 
+func defaultGetX[P, T](p: P): T =
+  ## Default getX proc for `fromPoints`. Coerces to `T`.
+  T(p[0])
+
+
+func defaultGetY[P, T](p: P): T =
+  ## Default getY proc for `fromPoints`. Coerces to `T`.
+  T(p[1])
+
+
 proc fromPoints*[P, T](points: seq[P]; getX: proc (p: P): T = defaultGetX; getY: proc (p: P): T = defaultGetY): Delaunator[T] =
   var
     coords = newSeq[T](points.len * 2)
@@ -550,6 +567,7 @@ proc fromPoints*[P, T](points: seq[P]; getX: proc (p: P): T = defaultGetX; getY:
 
 
 when isMainModule:
+  #[
   type
     Point32 = tuple[x, y: float32]
     Point64 = tuple[x, y: float64]
@@ -578,3 +596,10 @@ when isMainModule:
   echo "Triangles: ", d64.triangles
   echo "Halfedges: ", d64.halfedges
   echo "Hull: ", d64.hull
+  ]#
+
+  include "../tests/fixtures/ukraine"
+
+  var d = fromPoints[array[2, int], float64](ukraine)
+  echo "Coords type: ", typeof(d.coords)
+  #echo repr(d)

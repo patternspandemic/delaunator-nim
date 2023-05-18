@@ -1,7 +1,7 @@
 # TODO: inline things
 #       iterators sans ids?
 
-import std/sequtils, std/sugar, std/sets
+import std/[sequtils, sets, sugar]
 
 
 #[
