@@ -520,7 +520,7 @@ proc update[T](this: var Delaunator) =
 
 
 proc fromCoords*[T](coordinates: seq[T]): Delaunator[T] =
-  # Could not figure out how to constrain T to SomeFloat, so using cound to test coordinates as
+  # Could not figure out how to constrain T to SomeFloat, so using 'count' to test coordinates as
   # a seq[float32|float64]. Errors for example when coordinates is seq[int32].
   when not compiles(count[T](coordinates, 0.0)):
     {.error: "Coordinates must be seq[float32] or seq[float64] but got " & $typeof(coordinates) .}
@@ -556,10 +556,9 @@ proc fromPoints*[P, T](points: seq[P]; getX: proc (p: P): T = defaultGetX; getY:
   var
     coords = newSeq[T](points.len * 2)
   for i, point in points:
-      coords[2 * i] = getX(point)
-      coords[2 * i + 1] = getY(point)
+    coords[2 * i] = getX(point)
+    coords[2 * i + 1] = getY(point)
   fromCoords[T](coords)
-
 
 
 when isMainModule:
