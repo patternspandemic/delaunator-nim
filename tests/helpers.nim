@@ -3,24 +3,24 @@ import std/math
 import ../src/delaunator
 
 
-func orient(p, r, q: array[2, SomeFLoat]): SomeFloat =
+func orient[T](p, r, q: array[2, SomeNumber]): T =
   let
-    l = (r[1] - p[1]) * (q[0] - p[0])
-    r = (r[0] - p[0]) * (q[1] - p[1])
+    l = T((r[1] - p[1]) * (q[0] - p[0]))
+    r = T((r[0] - p[0]) * (q[1] - p[1]))
   if abs(l - r) >= 3.3306690738754716e-16 * abs(l + r):
     return l - r
   else:
     return 0.0
 
 
-func convex(r, q, p: array[2,SomeFloat]): bool =
+func convex[T](r, q, p: array[2,SomeNumber]): bool =
   # js equivelant of:
   # return (orient(p, r, q) || orient(r, q, p) || orient(q, p, r)) >= 0;
-  var o = orient(p, r, q)
+  var o = orient[T](p, r, q)
   if o != 0: return o >= 0
-  o = orient(r, q, p)
+  o = orient[T](r, q, p)
   if o != 0: return o >= 0
-  return orient(q, p, r) >= 0
+  return orient[T](q, p, r) >= 0
 
 
 # Kahan and Babuska summation, Neumaier variant; accumulates less FP error
@@ -52,8 +52,8 @@ proc validate*[P, T](points: seq[P], d: Delaunator[T]) =
     let
       tmp0 = points[d.hull[j]]
       tmp = points[d.hull[i]]
-    hullAreas.add((tmp[0] - tmp0[0]) * (tmp[1] + tmp0[1]))
-    assert convex(points[d.hull[j]], points[d.hull[(j + 1) mod hlen]],  points[d.hull[(j + 3) mod hlen]]), "hull should be convex at " & $j
+    hullAreas.add(T((tmp[0] - tmp0[0]) * (tmp[1] + tmp0[1])))
+    assert convex[T](points[d.hull[j]], points[d.hull[(j + 1) mod hlen]],  points[d.hull[(j + 3) mod hlen]]), "hull should be convex at " & $j
     j = i
   let hullArea = sum(hullAreas)
 
@@ -65,7 +65,7 @@ proc validate*[P, T](points: seq[P], d: Delaunator[T]) =
       a = points[d.triangles[i]]
       b = points[d.triangles[i + 1]]
       c = points[d.triangles[i + 2]]
-    triangleAreas.add(abs((b[1] - a[1]) * (c[0] - b[0]) - (b[0] - a[0]) * (c[1] - b[1])))
+    triangleAreas.add(T(abs((b[1] - a[1]) * (c[0] - b[0]) - (b[0] - a[0]) * (c[1] - b[1]))))
     i += 3
   let trianglesArea = sum(triangleAreas)
 
