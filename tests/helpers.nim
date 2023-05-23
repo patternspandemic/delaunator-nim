@@ -69,8 +69,6 @@ proc validate*[P, T](points: seq[P], d: Delaunator[T]) =
     i += 3
   let trianglesArea = sum(triangleAreas)
 
-  echo "hullArea: ", $hullArea
-  echo "trianglesArea: ", $trianglesArea
   let err = abs((hullArea - trianglesArea) / hullArea)
   assert err <= pow(2.0, -51.0), "triangulation should be valid; " & $err & " error"
 

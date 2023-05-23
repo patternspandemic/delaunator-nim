@@ -165,7 +165,7 @@ proc quicksort[F](ids: var seq[uint32]; dists: seq[F]; left, right: int) =
 include helpers # some depend upon above
 
 
-proc update[T](this: var Delaunator) =
+proc update*[T](this: var Delaunator) =
   # Inner procs passed var 'this' param as 'uthis' due to the need to mutate it.
   # Simply closing over it results in 'cannot be captured / memory safety error'.
 
@@ -278,7 +278,21 @@ proc update[T](this: var Delaunator) =
 
 
   # The main update code begins here (nested procs mostly above)
-  let n = ashr(this.coords.len, 1)
+  # Prepare to be (re)updated.
+  let
+    n = ashr(this.coords.len, 1) # n points
+    maxTriangles = max(2 * n - 5, 0)
+  this.trianglesLen = 0
+  this.d_triangles = newSeq[uint32](maxTriangles * 3)
+  this.d_halfedges = newSeq[int32](maxTriangles * 3)
+  this.d_hashSize = ceil(sqrt(n.toFloat)).toInt
+  this.d_hullStart = 0
+  this.d_hullPrev = newSeq[uint32](n)
+  this.d_hullNext = newSeq[uint32](n)
+  this.d_hullTri = newSeq[uint32](n)
+  this.d_hullHash = newSeq[int32](this.d_hashSize)
+  this.d_ids = newSeq[uint32](n)
+  this.d_dists = newSeq[T](n)
 
   # populate an array of point indices; calculate input data bbox
   this.minX = Inf
@@ -525,20 +539,6 @@ proc fromCoords*[T](coordinates: seq[T]): Delaunator[T] =
   when not compiles(count[T](coordinates, 0.0)):
     {.error: "Coordinates must be seq[float32] or seq[float64] but got " & $typeof(coordinates) .}
   result = Delaunator[T](coords: coordinates)
-  let
-    n = ashr(coordinates.len, 1) # n points
-    maxTriangles = max(2 * n - 5, 0)
-  result.trianglesLen = 0
-  result.d_triangles = newSeq[uint32](maxTriangles * 3)
-  result.d_halfedges = newSeq[int32](maxTriangles * 3)
-  result.d_hashSize = ceil(sqrt(n.toFloat)).toInt
-  result.d_hullStart = 0
-  result.d_hullPrev = newSeq[uint32](n)
-  result.d_hullNext = newSeq[uint32](n)
-  result.d_hullTri = newSeq[uint32](n)
-  result.d_hullHash = newSeq[int32](result.d_hashSize)
-  result.d_ids = newSeq[uint32](n)
-  result.d_dists = newSeq[T](n)
   update[T](result)
 
 
