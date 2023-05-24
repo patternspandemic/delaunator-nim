@@ -1,5 +1,5 @@
 
-import std/[math, monotimes, random, sequtils, terminal, times]
+import std/[math, monotimes, random, sequtils, strutils, terminal, times]
 import ../src/delaunator
 
 
@@ -52,15 +52,16 @@ when isMainModule:
 
   randomize()
 
-  echo "Point Count"
   echo ""
-  echo "         20k   100k   200k   500k   1000k"
+  writeStyled("      ")
+  writeStyled("n-points:", {styleDim, styleUnderscore, styleItalic})
+  writeStyled("   20k    100k    200k    500k   1000k\n", {styleDim, styleUnderscore, styleItalic})
   echo ""
 
   # bench float32 points
-  echo "  fromPoints (float32):"
+  writeStyled("  fromPoints (float32):\n", {styleBright})
   for i in 0 ..< distNames.len:
-    echo "    " & distNames[i] & ":"
+    writeStyled("    " & align(distNames[i], 10) & ":", {styleDim})
 
     let generate = f32Distributions[i]
 
@@ -68,21 +69,20 @@ when isMainModule:
     discard triangulatePoints[array[2, float32], float32](generate(counts[0]))
     discard triangulatePoints[array[2, float32], float32](generate(counts[1]))
 
-    writeStyled("      ")
     for c in counts:
       var points = generate(c)
       let strt = getMonotime()
       discard triangulatePoints[array[2, float32], float32](points)
       let elpsd = (getMonotime() - strt).inMilliseconds
-      writeStyled("  " & $elpsd & "ms")
+      writeStyled(align($elpsd & "ms", 6) & "  ", {styleDim})
       flushFile(stdout)
     writeLine(stdout, "")
 
   # bench float64 points
   writeLine(stdout, "")
-  echo "  fromPoints (float64):"
+  writeStyled("  fromPoints (float64):\n", {styleBright})
   for i in 0 ..< distNames.len:
-    echo "    " & distNames[i] & ":"
+    writeStyled("    " & align(distNames[i], 10) & ":", {styleDim})
 
     let generate = f64Distributions[i]
 
@@ -90,21 +90,20 @@ when isMainModule:
     discard triangulatePoints[array[2, float64], float64](generate(counts[0]))
     discard triangulatePoints[array[2, float64], float64](generate(counts[1]))
 
-    writeStyled("      ")
     for c in counts:
       var points = generate(c)
       let strt = getMonotime()
       discard triangulatePoints[array[2, float64], float64](points)
       let elpsd = (getMonotime() - strt).inMilliseconds
-      writeStyled("  " & $elpsd & "ms")
+      writeStyled(align($elpsd & "ms", 6) & "  ", {styleDim})
       flushFile(stdout)
     writeLine(stdout, "")
 
   # bench float32 coords
   writeLine(stdout, "")
-  echo "  fromCoords (float32):"
+  writeStyled("  fromCoords (float32):\n", {styleBright})
   for i in 0 ..< distNames.len:
-    echo "    " & distNames[i] & ":"
+    writeStyled("    " & align(distNames[i], 10) & ":", {styleDim})
 
     let generate = f32Distributions[i]
 
@@ -124,7 +123,6 @@ when isMainModule:
     discard triangulateCoords[float32](coordsC0)
     discard triangulateCoords[float32](coordsC1)
 
-    writeStyled("      ")
     for c in counts:
       var
         points = generate(c)
@@ -136,15 +134,15 @@ when isMainModule:
       let strt = getMonotime()
       discard triangulateCoords[float32](coords)
       let elpsd = (getMonotime() - strt).inMilliseconds
-      writeStyled("  " & $elpsd & "ms")
+      writeStyled(align($elpsd & "ms", 6) & "  ", {styleDim})
       flushFile(stdout)
     writeLine(stdout, "")
 
   # bench float64 coords
   writeLine(stdout, "")
-  echo "  fromCoords (float64):"
+  writeStyled("  fromCoords (float64):\n", {styleBright})
   for i in 0 ..< distNames.len:
-    echo "    " & distNames[i] & ":"
+    writeStyled("    " & align(distNames[i], 10) & ":", {styleDim})
 
     let generate = f64Distributions[i]
 
@@ -164,7 +162,6 @@ when isMainModule:
     discard triangulateCoords[float64](coordsC0)
     discard triangulateCoords[float64](coordsC1)
 
-    writeStyled("      ")
     for c in counts:
       var
         points = generate(c)
@@ -176,6 +173,8 @@ when isMainModule:
       let strt = getMonotime()
       discard triangulateCoords[float64](coords)
       let elpsd = (getMonotime() - strt).inMilliseconds
-      writeStyled("  " & $elpsd & "ms")
+      writeStyled(align($elpsd & "ms", 6) & "  ", {styleDim})
       flushFile(stdout)
     writeLine(stdout, "")
+
+  stdout.resetAttributes()
