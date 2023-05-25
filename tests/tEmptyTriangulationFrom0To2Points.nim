@@ -4,7 +4,9 @@ import ../src/delaunator
 include "fixtures/ukraine.nim"
 
 # No points
-var d = delaunator.fromCoords[float64](@[])
+var
+  coords: seq[float64] = @[]
+  d = delaunator.fromCoords[float64](coords)
 assert d.triangles.len == 0
 assert d.hull.len == 0
 

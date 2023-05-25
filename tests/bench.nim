@@ -35,11 +35,11 @@ proc degenerate[T](count: int): seq[array[2, T]] =
   return points
 
 
-proc triangulateCoords[T](points: seq[T]): Delaunator[T] =
+proc triangulateCoords[T](points: var seq[T]): Delaunator[T] =
   return delaunator.fromCoords[T](points)
 
 
-proc triangulatePoints[P, T](points: seq[array[2, T]]): Delaunator[T] =
+proc triangulatePoints[P, T](points: var seq[array[2, T]]): Delaunator[T] =
   return delaunator.fromPoints[P, T](points)
 
 
@@ -66,8 +66,10 @@ when isMainModule:
     let generate = f32Distributions[i]
 
     # warmup
-    discard triangulatePoints[array[2, float32], float32](generate(counts[0]))
-    discard triangulatePoints[array[2, float32], float32](generate(counts[1]))
+    var gend = generate(counts[0])
+    discard triangulatePoints[array[2, float32], float32](gend)
+    gend = generate(counts[1])
+    discard triangulatePoints[array[2, float32], float32](gend)
 
     for c in counts:
       var points = generate(c)
@@ -87,8 +89,10 @@ when isMainModule:
     let generate = f64Distributions[i]
 
     # warmup
-    discard triangulatePoints[array[2, float64], float64](generate(counts[0]))
-    discard triangulatePoints[array[2, float64], float64](generate(counts[1]))
+    var gend = generate(counts[0])
+    discard triangulatePoints[array[2, float64], float64](gend)
+    gend = generate(counts[1])
+    discard triangulatePoints[array[2, float64], float64](gend)
 
     for c in counts:
       var points = generate(c)

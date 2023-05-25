@@ -1,3 +1,4 @@
+## TODO: Lib doc, delaunator-nim is ...
 
 # Up to date with mapbox/Delaunator at 103acb4564a36ad2dff11dc0135a348f4e8fc149 May 27, 2032
 
@@ -7,7 +8,7 @@ import std/[math, tables]
 from std/fenv import epsilon
 from std/algorithm import fill
 
-from orient2d import orient2d
+import delaunator/orient2d
 
 
 var EDGE_STACK: array[512, uint32]
@@ -160,9 +161,6 @@ proc quicksort[F](ids: var seq[uint32]; dists: seq[F]; left, right: int) =
     else:
       quicksort(ids, dists, left, j - 1)
       quicksort(ids, dists, i, right)
-
-
-include helpers # some depend upon above
 
 
 proc update*[T](this: var Delaunator) =
@@ -522,7 +520,9 @@ proc update*[T](this: var Delaunator) =
   clear(this.d_pointToLeftmostHalfedgeIndex)
   var he: int32 = 0
   while true:
-    let endpoint = this.d_triangles[nextHalfedge(he)]
+    let
+      nextHE = if he %% 3 == 2: he - 2 else: he + 1
+      endpoint = this.d_triangles[nextHE]
     if not hasKey(this.d_pointToLeftmostHalfedgeIndex, endpoint) or this.d_halfedges[he] == -1:
       this.d_pointToLeftmostHalfedgeIndex[endpoint] = he
     inc he
@@ -533,10 +533,10 @@ proc update*[T](this: var Delaunator) =
   this.halfedges = this.d_halfedges[0 ..< this.trianglesLen]
 
 
-proc fromCoords*[T](coordinates: seq[T]): Delaunator[T] =
-  # Could not figure out how to constrain T to SomeFloat, so using 'count' to test coordinates as
+proc fromCoords*[T](coordinates: var seq[T]): Delaunator[T] =
+  # Could not figure out how to constrain T to SomeFloat, so using 'add' to test coordinates as
   # a seq[float32|float64]. Errors for example when coordinates is seq[int32].
-  when not compiles(count[T](coordinates, 0.0)):
+  when not compiles(coordinates.add(float64(1.0))):
     {.error: "Coordinates must be seq[float32] or seq[float64] but got " & $typeof(coordinates) .}
   result = Delaunator[T](coords: coordinates)
   update[T](result)
@@ -559,48 +559,3 @@ proc fromPoints*[P, T](points: seq[P]; getX: proc (p: P): T = defaultGetX; getY:
     coords[2 * i] = getX(point)
     coords[2 * i + 1] = getY(point)
   fromCoords[T](coords)
-
-
-when isMainModule:
-  #[
-  type
-    Point32 = tuple[x, y: float32]
-    Point64 = tuple[x, y: float64]
-
-  var
-    d32: Delaunator[float32]
-    points32: seq[Point32]
-    d64: Delaunator[float64]
-    points64: seq[Point64]
-
-  points32 = @[(1.0'f32, 1.0'f32), (-1.0'f32, 1.0'f32), (0.2'f32, 0.1'f32), (0.0'f32, -1.0'f32)]
-  points64 = @[(1.0'f64, 1.0'f64), (-1.0'f64, 1.0'f64), (0.2'f64, 0.1'f64), (0.0'f64, -1.0'f64)]
-  d32 = fromPoints[Point32, float32](points32)
-  d64 = fromPoints[Point64, float64](points64)
-
-  echo repr(d32)
-  echo ""
-  echo "Coords: :", d32.coords
-  echo "Triangles: ", d32.triangles
-  echo "Halfedges: ", d32.halfedges
-  echo "Hull: ", d32.hull
-  echo " - - - - - - - - "
-  echo repr(d64)
-  echo ""
-  echo "Coords: :", d64.coords
-  echo "Triangles: ", d64.triangles
-  echo "Halfedges: ", d64.halfedges
-  echo "Hull: ", d64.hull
-  ]#
-
-  #include "../tests/fixtures/ukraine"
-  #include "../tests/fixtures/issue44"
-  include "../tests/fixtures/robustness4"
-
-  var d = fromPoints[array[2, float64], float64](robustness4)
-  #echo "Coords type: ", typeof(d.coords)
-  echo repr(d)
-  # echo "Coords: :", d.coords
-  # echo "Triangles: ", d.triangles
-  # echo "Halfedges: ", d.halfedges
-  # echo "Hull: ", d.hull
