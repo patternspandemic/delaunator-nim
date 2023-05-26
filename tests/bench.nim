@@ -1,5 +1,5 @@
 
-import std/[math, monotimes, random, sequtils, strutils, terminal, times]
+import std/[math, monotimes, random, strutils, terminal, times]
 import ../src/delaunator
 
 

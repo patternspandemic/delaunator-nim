@@ -2,8 +2,6 @@
 
 # Up to date with mapbox/Delaunator at 103acb4564a36ad2dff11dc0135a348f4e8fc149 May 27, 2032
 
-#TODO: inline things
-
 import std/[math, tables]
 from std/fenv import epsilon
 from std/algorithm import fill
@@ -43,14 +41,14 @@ type
     d_pointToLeftmostHalfedgeIndex: Table[uint32, int32]
 
 
-proc swap(arr: var seq[uint32]; i, j: int) =
+proc swap(arr: var seq[uint32]; i, j: int) {.inline.} =
   let tmp = arr[i]
   arr[i] = arr[j]
   arr[j] = tmp
 
 
 # monotonically increases with real angle, but doesn't need expensive trigonometry
-func pseudoAngle[F](dx, dy: F): F =
+func pseudoAngle[F](dx, dy: F): F {.inline.} =
   let p = dx / (dx.abs + dy.abs)
   if dy > 0.0:
     result = (3.0 - p) / 4.0
@@ -58,14 +56,14 @@ func pseudoAngle[F](dx, dy: F): F =
     result = (1.0 + p) / 4.0
 
 
-func dist[F](ax, ay, bx, by: F): F =
+func dist[F](ax, ay, bx, by: F): F {.inline.} =
   let
     dx = ax - bx
     dy = ay - by
   result = dx * dx + dy * dy
 
 
-func inCircle[F](ax, ay, bx, by, cx, cy, px, py: F): bool =
+func inCircle[F](ax, ay, bx, by, cx, cy, px, py: F): bool {.inline.} =
   let
     dx = ax - px
     dy = ay - py
@@ -83,7 +81,7 @@ func inCircle[F](ax, ay, bx, by, cx, cy, px, py: F): bool =
            ap * (ex * fy - ey * fx) < 0
 
 
-func circumradius[F](ax, ay, bx, by, cx, cy: F): F =
+func circumradius[F](ax, ay, bx, by, cx, cy: F): F {.inline.} =
   let
     dx = bx - ax
     dy = by - ay
@@ -100,7 +98,7 @@ func circumradius[F](ax, ay, bx, by, cx, cy: F): F =
   result = x * x + y * y
 
 
-func circumcenter[F](ax, ay, bx, by, cx, cy: F): tuple[x, y: F] =
+func circumcenter[F](ax, ay, bx, by, cx, cy: F): tuple[x, y: F] {.inline.} =
   let
     dx = bx - ax
     dy = by - ay
@@ -167,18 +165,17 @@ proc update*[T](this: var Delaunator) =
   # Inner procs passed var 'this' param as 'uthis' due to the need to mutate it.
   # Simply closing over it results in 'cannot be captured / memory safety error'.
 
-  proc u_link(uthis: var Delaunator; a, b: int32) =
+  proc u_link(uthis: var Delaunator; a, b: int32) {.inline.} =
     uthis.d_halfedges[a] = b
     if b != -1: uthis.d_halfedges[b] = a
 
 
-  # Lots of int type casting due to disconnect between indexing and unsigned storage types used for halfedges/hull checks.
   proc u_legalize(uthis: var Delaunator; a: var int32): uint32 =
     var
       i = 0
       ar = 0'i32
 
-    block outerWhile: # TODO: remove block
+    block outerWhile: # TODO: remove block, not needed.
       while true:
         let b = uthis.d_halfedges[a]
 
@@ -231,13 +228,13 @@ proc update*[T](this: var Delaunator) =
 
           let hbl = uthis.d_halfedges[bl]
 
-          # edge swapped on the other side of the hull (rare); fix the halfedge reference
+          # edge swapped on the other side of the hull (rare);
           if hbl == -1:
             var e = uthis.d_hullStart
-            while true: #FIXME: issue13, issue44 hang here
+            while true:
               if int32(uthis.d_hullTri[e]) == bl:
                 uthis.d_hullTri[e] = uint32(a)
-                break #outerWhile
+                break
               e = int32(uthis.d_hullPrev[e])
               if e == uthis.d_hullStart: break
           u_link(uthis, a, hbl)
@@ -259,7 +256,7 @@ proc update*[T](this: var Delaunator) =
     return uint32(ar)
 
 
-  proc u_addTriangle(uthis: var Delaunator; i0, i1, i2, a, b, c: int): int32 =
+  proc u_addTriangle(uthis: var Delaunator; i0, i1, i2, a, b, c: int): int32 {.inline.} =
     let t = uthis.trianglesLen
 
     uthis.d_triangles[t] = uint32(i0)
