@@ -98,7 +98,8 @@ func circumradius[F](ax, ay, bx, by, cx, cy: F): F {.inline.} =
   result = x * x + y * y
 
 
-func circumcenter[F](ax, ay, bx, by, cx, cy: F): tuple[x, y: F] {.inline.} =
+# exported for use in helpers.
+func circumcenter*[F](ax, ay, bx, by, cx, cy: F): tuple[x, y: F] {.inline.} =
   let
     dx = bx - ax
     dy = by - ay
