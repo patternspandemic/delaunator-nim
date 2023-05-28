@@ -27,8 +27,8 @@ type
     # Temporary arrays for tracking the edges of the advancing convex hull
     d_hashSize: int
     d_hullStart: int
-    d_hullPrev: seq[uint32]  # edge to prev edge
-    d_hullNext: seq[uint32]  # edge to next edge
+    d_hullPrev*: seq[uint32]  # edge to prev edge
+    d_hullNext*: seq[uint32]  # edge to next edge
     d_hullTri:  seq[uint32]  # edge to adjacent triangle
     d_hullHash: seq[int32]   # angular edge hash
 

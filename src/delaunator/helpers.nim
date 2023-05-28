@@ -76,7 +76,7 @@ iterator iterTriangleEdges*[T](d: Delaunator[T]): tuple[e: int; p, q: array[2, T
     if e > d.halfedges[e]:
       let
         pid = d.triangles[e]
-        qid = d.triangles[nextHalfedge(e)]
+        qid = d.triangles[nextHalfedge(int32(e))]
         p = [d.coords[2 * pid], d.coords[2 * pid + 1]]
         q = [d.coords[2 * qid], d.coords[2 * qid + 1]]
       yield (e, p, q)
@@ -85,7 +85,7 @@ iterator iterTriangleEdges*[T](d: Delaunator[T]): tuple[e: int; p, q: array[2, T
 
 func pointIdsOfTriangle*(d: Delaunator, t: int32): seq[int32] =
   ## The point ids composing the triangle with id `t`.
-  return map(halfedgeIdsOfTriangle(t), proc(h: int32): int32 = d.triangles[h])
+  return map(halfedgeIdsOfTriangle(t), proc(h: int32): int32 = int32(d.triangles[h]))
 
 
 iterator iterTriangles*[T](d: Delaunator[T]): tuple[t: int; p1, p2, p3: array[2, T]] =
@@ -112,13 +112,13 @@ func triangleIdsAdjacentToTriangle*(d: Delaunator, t: int32): seq[int32] =
   return tids
 
 
-func triangleCircumcenter*(d: Delaunator, t: int32): array[2, SomeFLoat] =
+func triangleCircumcenter*[T](d: Delaunator, t: int32): array[2, T] =
   ## The circumcenter of triangle with id `t`.
   let
     pids = pointIdsOfTriangle(d, t)
-    p1: array[2, SomeFloat] = d.coords[(2 * pids[0]) ..< (2 * pids[0] + 2)]
-    p2: array[2, SomeFloat] = d.coords[(2 * pids[1]) ..< (2 * pids[1] + 2)]
-    p3: array[2, SomeFloat] = d.coords[(2 * pids[2]) ..< (2 * pids[2] + 2)]
+    p1 = [d.coords[2 * pids[0]], d.coords[2 * pids[0] + 1]]
+    p2 = [d.coords[2 * pids[1]], d.coords[2 * pids[1] + 1]]
+    p3 = [d.coords[2 * pids[2]], d.coords[2 * pids[2] + 1]]
     (cx, cy) = circumcenter(p1[0], p1[1], p2[0], p2[1], p3[0], p3[1])
   return [cx, cy]
 
@@ -136,8 +136,8 @@ iterator iterVoronoiEdges*[T](d: Delaunator[T]): tuple[e: int; p, q: array[2, T]
   while e < d.triangles.len:
     if e < d.halfedges[e]: # excludes halfedges on hull
       let
-        p = triangleCircumcenter(d, triangleIdOfEdge(e))
-        q = triangleCircumcenter(d, triangleIdOfEdge(d.halfedges[e]))
+        p = triangleCircumcenter[T](d, triangleIdOfEdge(int32(e)))
+        q = triangleCircumcenter[T](d, triangleIdOfEdge(d.halfedges[e]))
       yield (e, p, q)
     inc e
 
