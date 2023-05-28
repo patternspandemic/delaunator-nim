@@ -95,7 +95,7 @@ iterator iterTriangles*[T](d: Delaunator[T]): tuple[t: int; p1, p2, p3: array[2,
   var t = 0
   while t < floorDiv(d.triangles.len, 3):
     let
-      pids = pointIdsOfTriangle(d, t)
+      pids = pointIdsOfTriangle(d, int32(t))
       p1 = [d.coords[2 * pids[0]], d.coords[2 * pids[0] + 1]]
       p2 = [d.coords[2 * pids[1]], d.coords[2 * pids[1] + 1]]
       p3 = [d.coords[2 * pids[2]], d.coords[2 * pids[2] + 1]]
@@ -112,7 +112,7 @@ func triangleIdsAdjacentToTriangle*(d: Delaunator, t: int32): seq[int32] =
   return tids
 
 
-func triangleCircumcenter*[T](d: Delaunator, t: int32): array[2, T] =
+func triangleCircumcenter*[T](d: Delaunator[T], t: int32): array[2, T] =
   ## The circumcenter of triangle with id `t`.
   let
     pids = pointIdsOfTriangle(d, t)
