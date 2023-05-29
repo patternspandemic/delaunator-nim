@@ -27,8 +27,8 @@ type
     # Temporary arrays for tracking the edges of the advancing convex hull
     d_hashSize: int
     d_hullStart: int
-    d_hullPrev*: seq[uint32]  # edge to prev edge
-    d_hullNext*: seq[uint32]  # edge to next edge
+    d_hullPrev: seq[uint32]  # edge to prev edge
+    d_hullNext: seq[uint32]  # edge to next edge
     d_hullTri:  seq[uint32]  # edge to adjacent triangle
     d_hullHash: seq[int32]   # angular edge hash
 
@@ -39,6 +39,18 @@ type
     # For fast lookup of point id to leftmost imcoming halfedge id
     # Useful for retrieval of adhoc voronoi regions.
     d_pointToLeftmostHalfedgeIndex: Table[uint32, int32]
+
+
+func hullNext*(d: Delaunator, id: uint32): uint32 =
+  d.d_hullNext[id]
+
+
+func hullPrev*(d: Delaunator, id: uint32): uint32 =
+  d.d_hullPrev[id]
+
+
+func pointToLeftmostHalfedge*(d: Delaunator, id: int32): int32 =
+  return d.d_pointToLeftmostHalfedgeIndex[uint32(id)]
 
 
 proc swap(arr: var seq[uint32]; i, j: int) {.inline.} =
@@ -517,14 +529,13 @@ proc update*[T](this: var Delaunator) =
   # Build the index of point id to leftmost incoming halfedge
   clear(this.d_pointToLeftmostHalfedgeIndex)
   var he: int32 = 0
-  while true:
+  while he < this.trianglesLen:
     let
-      nextHE = if he %% 3 == 2: he - 2 else: he + 1
+      nextHE = if he mod 3 == 2: he - 2 else: he + 1
       endpoint = this.d_triangles[nextHE]
-    if not hasKey(this.d_pointToLeftmostHalfedgeIndex, endpoint) or this.d_halfedges[he] == -1:
+    if (not hasKey(this.d_pointToLeftmostHalfedgeIndex, endpoint)) or this.d_halfedges[he] == -1:
       this.d_pointToLeftmostHalfedgeIndex[endpoint] = he
     inc he
-    if not he < this.trianglesLen: break
 
   # trim typed triangle mesh arrays
   this.triangles = this.d_triangles[0 ..< this.trianglesLen]

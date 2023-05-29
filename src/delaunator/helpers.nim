@@ -144,11 +144,8 @@ iterator iterVoronoiEdges*[T](d: Delaunator[T]): tuple[e: int; p, q: array[2, T]
 
 func edgeIdsAroundPoint*(d: Delaunator, e: int32): seq[int32] =
   ## The ids of all halfedges pointing to the point that halfedge `e` points to.
-  ## TODO: test whether this works for case when `e` points to a point on the
-  ## hull. Should now be okay with setting `start` to leftmost halfedge.
   var
-    # Get the leftmost edge pointing to the point e is pointing to.
-    start = d.d_pointToLeftmostHalfedgeIndex[nextHalfedge(e)]
+    start = e
     incomming = start
     edgeIds = newSeqOfCap[int32](10) # TODO: Not sure what's a good starting capacity
   while true:
@@ -182,15 +179,13 @@ iterator iterVoronoiRegions*[T](d: Delaunator[T]): tuple[p: uint32, verts: seq[a
 
 
 # FIXME: Does not provide clipped regions for points on hull
-#        Param p and shadowed p are the same?
-func voronoiRegion*(d: Delaunator, p: uint32): tuple[p: uint32, verts: seq[array[2, SomeFloat]]] =
+func voronoiRegion*[T](d: Delaunator[T], p: int32): tuple[p: int32, verts: seq[array[2, T]]] =
   let
-    incomming = d.d_pointToLeftmostHalfedgeIndex[p]
-    p = d.triangles[nextHalfedge(incomming)] # FIXME: prob remove
+    incomming = pointToLeftmostHalfedge(d, p)
     edgeIds = edgeIdsAroundPoint(d, incomming)
     triangleIds = map(edgeIds, proc(h: int32): int32 = triangleIdOfEdge(h))
-    vertices = map(triangleIds, proc(t: int32): array[2, SomeFloat] = triangleCircumcenter(d, t))
-  return (p, vertices)
+    vertices = map(triangleIds, proc(t: int32): array[2, T] = triangleCircumcenter(d, t))
+  return (int32(p), vertices)
 
 
 iterator iterPoints*[T](d: Delaunator[T]): tuple[id: int, p: array[2, T]] =
@@ -213,7 +208,6 @@ iterator iterHullPoints*[T](d: Delaunator[T]): tuple[id: int, p: array[2, T]] =
     inc p
 
 
-# FIXME: Not sure this works
 iterator iterHullEdges*[T](d: Delaunator[T]): tuple[e: int; p, q: array[2, T]] =
   ## Provides an iterator yielding values for each edge of the triangulation's hull.
   ## The values yielded are the id of the halfedge running from p to q, an array
@@ -223,7 +217,7 @@ iterator iterHullEdges*[T](d: Delaunator[T]): tuple[e: int; p, q: array[2, T]] =
   while e < d.hull.len:
     let
       pid = d.hull[e]
-      qid = d.d_hullNext[pid] # d_hullNext may not be accessable?
+      qid = hullNext(d, pid)
       p = [d.coords[2 * pid], d.coords[2 * pid + 1]]
       q = [d.coords[2 * qid], d.coords[2 * qid + 1]]
     yield (e, p, q)
