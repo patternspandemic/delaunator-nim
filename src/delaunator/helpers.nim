@@ -167,11 +167,11 @@ iterator iterVoronoiRegions*[T](d: Delaunator[T]): tuple[p: uint32, verts: seq[a
     seen = toHashSet(d.hull)
     e = 0
   while e < d.triangles.len:
-    let p = d.triangles[nextHalfedge(e)]
+    let p = d.triangles[nextHalfedge(int32(e))]
     if not seen.contains(p):
       seen.incl(p)
       let
-        edgeIds = edgeIdsAroundPoint(d, e)
+        edgeIds = edgeIdsAroundPoint(d, int32(e))
         triangleIds = map(edgeIds, proc(h: int32): int32 = triangleIdOfEdge(h))
         vertices = map(triangleIds, proc(t: int32): array[2, T] = triangleCircumcenter(d, t))
       yield (p, vertices)
