@@ -4,7 +4,9 @@
 import std/[math, sequtils, sets, sugar]
 
 import ../delaunator
+import clip
 
+# Region clipping based on https://observablehq.com/@mbostock/to-infinity-and-back-again
 
 #[
 bounds
@@ -110,6 +112,18 @@ func triangleIdsAdjacentToTriangle*(d: Delaunator, t: int32): seq[int32] =
       let opposite = d.halfedges[h]
       if opposite >= 0: triangleIdOfEdge(opposite)
   return tids
+
+
+func triangleCentroid*[T](d: Delaunator[T], t: int32): array[2, T] =
+  ## The centroid of triangle with id `t`.
+  let
+    pids = pointIdsOfTriangle(d, t)
+    p1 = [d.coords[2 * pids[0]], d.coords[2 * pids[0] + 1]]
+    p2 = [d.coords[2 * pids[1]], d.coords[2 * pids[1] + 1]]
+    p3 = [d.coords[2 * pids[2]], d.coords[2 * pids[2] + 1]]
+    x = (p1[0] + p2[0] + p3[0]) / 3.0
+    y = (p1[1] + p2[1] + p3[1]) / 3.0
+  return [x, y]
 
 
 func triangleCircumcenter*[T](d: Delaunator[T], t: int32): array[2, T] =
