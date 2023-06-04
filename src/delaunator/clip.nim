@@ -1,10 +1,14 @@
 
 # Clipping code based on https://observablehq.com/@mbostock/to-infinity-and-back-again
+# as well as d3-delaunay.
+
+import std/[options, sequtils]
+
 
 type
-  InfConvexPoly[T] = object
-    points: seq[array[2, T]]
-    v0, vn: array[2, T]
+  InfConvexPoly*[T] = object
+    points*: seq[array[2, T]]
+    v0*, vn*: array[2, T]
 
 
 # TODO: Find where this is called. in linked example
@@ -49,40 +53,27 @@ func centroid[T](polygon: seq[array[2, T]]): array[2, T] =
 
 
 proc clipInfinite*[T](polygon: InfConvexPoly[T], xMin, yMin, xMax, yMax: T): seq[array[2, T]] =
-  #[
-  function project([x0, y0], [vx, vy]) {
-    let t = Infinity, c, x, y;
-    if (vy < 0) { // top
-      if (y0 <= ymin) return;
-      if ((c = (ymin - y0) / vy) < t) y = ymin, x = x0 + (t = c) * vx;
-    } else if (vy > 0) { // bottom
-      if (y0 >= ymax) return;
-      if ((c = (ymax - y0) / vy) < t) y = ymax, x = x0 + (t = c) * vx;
-    }
-    if (vx > 0) { // right
-      if (x0 >= xmax) return;
-      if ((c = (xmax - x0) / vx) < t) x = xmax, y = y0 + (t = c) * vy;
-    } else if (vx < 0) { // left
-      if (x0 <= xmin) return;
-      if ((c = (xmin - x0) / vx) < t) x = xmin, y = y0 + (t = c) * vy;
-    }
-    return [x, y];
-  }
-  ]#
-  func project(p, v: array[2, T]): array[2, T] =
+  let # so inner procs can close over bounds
+    xMin = xMin
+    yMin = yMin
+    xMax = xMax
+    yMax = yMax
+
+
+  func project[T](p, v: array[2, T]): Option[array[2, T]] =
     var
       t = Inf
       c, x, y: T
 
     if v[1] < 0.0: # top
-      if p[1] <= yMin: return nil
+      if p[1] <= yMin: return # none(array[2,T])
       c = (yMin - p[1]) / v[1]
       if c < t:
         y = yMin
         x = p[0] + c * v[0]
         t = c
     elif v[1] > 0.0: # bottom
-      if p[1] >= yMax: return nil
+      if p[1] >= yMax: return  # none(array[2,T])
       c = (yMax - p[1]) / v[1]
       if c < t:
         y = yMax
@@ -90,39 +81,27 @@ proc clipInfinite*[T](polygon: InfConvexPoly[T], xMin, yMin, xMax, yMax: T): seq
         t = c
 
     if v[0] > 0.0: # right
-      if p[0] >= xMax: return nil
+      if p[0] >= xMax: return  # none(array[2,T])
       c = (xMax - p[0]) / v[0]
       if c < t:
         x = xMax
         y = p[1] + c * v[1]
         t = c
     elif v[0] < 0.0: # left
-      if p[0] <= xMin: return nil
+      if p[0] <= xMin: return # none(array[2,T])
       c = (xMin - p[0]) / v[0]
       if c < t:
         x = xMin
         y = p[1] + c * v[1]
         t = c
 
-    return [x, y]
+    return some([x, y])
 
-  #[
-  function clockwise([x0, y0], [x1, y1], [x2, y2]) {
-    return (x1 - x0) * (y2 - y0) < (y1 - y0) * (x2 - x0);
-  }
-  ]#
+
   func clockwise(p, q, r: array[2, T]): bool =
     return (q[0] - p[0]) * (r[1] - p[1]) < (q[1] - p[1]) * (r[0] - p[0])
 
-  #[
-  function contains({points, v0, vn}, p) {
-    let n = points.length, p0, p1 = points[0];
-    if (clockwise(p, [p1[0] + v0[0], p1[1] + v0[1]], p1)) return false;
-    for (let i = 1; i < n; ++i) if (clockwise(p, p0 = p1, p1 = points[i])) return false;
-    if (clockwise(p, p1, [p1[0] + vn[0], p1[1] + vn[1]])) return false;
-    return true;
-  }
-  ]#
+
   func contains(poly: InfConvexPoly[T], p: array[2, T]): bool =
     var
       p0, p1: array[2, T]
@@ -135,20 +114,7 @@ proc clipInfinite*[T](polygon: InfConvexPoly[T], xMin, yMin, xMax, yMax: T): seq
     if clockwise(p, p1, [p1[0] + poly.vn[0], p1[1] + poly.vn[1]]): return false
     return true
 
-    #[
-  inside = ({
-    top: ([x, y]) => y > ymin,
-    right: ([x, y]) => x < xmax,
-    bottom: ([x, y]) => y < ymax,
-    left: ([x, y]) => x > xmin
-  })
-  intersect = ({
-    top: ([x0, y0], [x1, y1]) => [x0 + (x1 - x0) * (ymin - y0) / (y1 - y0), ymin],
-    right: ([x0, y0], [x1, y1]) => [xmax, y0 + (y1 - y0) * (xmax - x0) / (x1 - x0)],
-    bottom: ([x0, y0], [x1, y1]) => [x0 + (x1 - x0) * (ymax - y0) / (y1 - y0), ymax],
-    left: ([x0, y0], [x1, y1]) => [xmin, y0 + (y1 - y0) * (xmin - x0) / (x1 - x0)]
-  })
-  ]#
+
   let
     insideTop = proc (p: array[2, T]): bool = p[1] > yMin
     insideRight = proc (p: array[2, T]): bool = p[0] < xMax
@@ -161,23 +127,6 @@ proc clipInfinite*[T](polygon: InfConvexPoly[T], xMin, yMin, xMax, yMax: T): seq
     intersectLeft = proc (p, q: array[2, T]): array[2, T] = [xMin, p[1] + ( q[1] - p[1] ) * ( xMin - p[0] ) / ( q[0] - p[0] )]
 
 
-  #[
-  function clipper(inside, intersect) {
-    return function(subject) {
-      const P = [], n = subject.length;
-      if (!n) return P;
-      let p0, p1 = subject[n - 1];
-      let t0, t1 = inside(p1);
-      for (let i = 0; i < n; ++i) {
-        p0 = p1, p1 = subject[i];
-        t0 = t1, t1 = inside(p1);
-        if (t1 !== t0) P.push(intersect(p0, p1));
-        if (t1) P.push(p1);
-      }
-      return P;
-    };
-  }
-  ]#
   proc clipper(
     inside: proc (p: array[2, T]): bool,
     intersect: proc (p, q: array[2, T]): array[2, T]
@@ -200,85 +149,40 @@ proc clipInfinite*[T](polygon: InfConvexPoly[T], xMin, yMin, xMax, yMax: T): seq
       return p
 
 
-  #[
-  clip = {
-    const top = clipper(inside.top, intersect.top);
-    const right = clipper(inside.right, intersect.right);
-    const bottom = clipper(inside.bottom, intersect.bottom);
-    const left = clipper(inside.left, intersect.left);
-    return function clip(subject) {
-      return left(bottom(right(top(subject))));
-    };
-  }
-  ]#
   let
     top = clipper(insideTop, intersectTop)
     right = clipper(insideRight, intersectRight)
     bottom = clipper(insideBottom, intersectBottom)
     left = clipper(insideLeft, intersectLeft)
 
+
   proc clip(subject: seq[array[2, T]]): seq[array[2, T]] =
     return left(bottom(right(top(subject))))
 
-  #[
-  function sidecode([x, y]) {
-    return (x === xmin ? 1 : x === xmax ? 2 : 0) | (y === ymin ? 4 : y === ymax ? 8 : 0);
-  }
-  ]#
-  func sidecode(p: array[2, T]): int8 =
-    return (if p[0] == xMin: 1 else: (if p[0] == xMax: 2 else: 0)) or (if p[1] == yMin: 4 else: (if p[1] == yMax: 8 else: 0))
 
-#[
-  let P = polygon.points.slice(), p, n;
-  if (p = project(P[0], polygon.v0)) P.unshift(p);
-  if (p = project(P[P.length - 1], polygon.vn)) P.unshift(p);
-  if (n = (P = clip(P)).length) {
-    for (let i = 0, c0, c1 = sidecode(P[n - 1]); i < n; ++i) {
-      c0 = c1, c1 = sidecode(P[i]);
-      if (c0 && c1) {
-        while (c0 !== c1) {
-          let c;
-          switch (c0) {
-            case 0b0101: c0 = 0b0100; continue; // top-left
-            case 0b0100: c0 = 0b0110, c = [xmax, ymin]; break; // top
-            case 0b0110: c0 = 0b0010; continue; // top-right
-            case 0b0010: c0 = 0b1010, c = [xmax, ymax]; break; // right
-            case 0b1010: c0 = 0b1000; continue; // bottom-right
-            case 0b1000: c0 = 0b1001, c = [xmin, ymax]; break; // bottom
-            case 0b1001: c0 = 0b0001; continue; // bottom-left
-            case 0b0001: c0 = 0b0101, c = [xmin, ymin]; break; // left
-          }
-          if (contains(polygon, c)) {
-            P.splice(i, 0, c), ++n, ++i;
-          }
-        }
-      }
-    }
-  } else if (contains(polygon, [(xmin + xmax) / 2, (ymin + ymax) / 2])) {
-    P.push([xmin, ymin], [xmax, ymin], [xmax, ymax], [xmin, ymax]);
-  }
-  return P;
-]#
+  func sidecode(p: array[2, T]): int8 =
+    return (if p[0] == xMin: int8(1) else: (if p[0] == xMax: int8(2) else: int8(0))) or (if p[1] == yMin: int8(4) else: (if p[1] == yMax: int8(8) else: int8(0)))
+
+
   var
     ply = polygon.points
-    p: array[2, T]
+    p: Option[array[2, T]]
     n: int
-  p = project(ply[0], polygon.v0)
-  if p: ply.insert(@[p]) # FIXME: Better way than insert?
-  p = project(ply[^1], polygon.vn)
-  if p: ply.insert(@[p])
+  p = project[T](ply[0], polygon.v0)
+  if p.isSome: ply.insert(@[p.get]) # FIXME: Better way than insert?
+  p = project[T](ply[^1], polygon.vn)
+  if p.isSome: ply.insert(@[p.get])
   ply = clip(ply)
   n = ply.len
   if n > 0:
     var
       i = 0
       c0, c1: int8
-    c1 = sidecode(ply[^1])
+    c1 = sidecode(ply[n - 1])
     while i < n:
-      inc i
       c0 = c1
       c1 = sidecode(ply[i])
-      if (c0 and c1) != 0:
+      if (c0 != 0) and (c1 != 0):
         while c0 != c1:
           var c: array[2, T]
           case c0
@@ -288,7 +192,6 @@ proc clipInfinite*[T](polygon: InfConvexPoly[T], xMin, yMin, xMax, yMax: T): seq
           of 0b0100: # top
             c0 = 0b0110
             c = [xMax, yMin]
-            break
           of 0b0110: # top-right
             c0 = 0b0010
             continue
@@ -301,18 +204,19 @@ proc clipInfinite*[T](polygon: InfConvexPoly[T], xMin, yMin, xMax, yMax: T): seq
           of 0b1000: # bottom
             c0 = 0b1001
             c = [xMin, yMax]
-            break
           of 0b1001: # bottom-left
             c0 = 0b0001
             continue
           of 0b0001: # left
             c0 = 0b0101
             c = [xMin, yMin]
-            break
+          else:
+            discard
           if contains(polygon, c):
             ply.insert(@[c], i)
             inc n
             inc i
+      inc i
 
   elif contains(polygon, [(xMin + xMax) / 2.0, (yMin + yMax) / 2.0]):
     ply.insert(@[[xmin, ymin], [xmax, ymin], [xmax, ymax], [xmin, ymax]])

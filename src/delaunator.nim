@@ -18,6 +18,7 @@ type
     triangles*: seq[uint32] # trimmed version of d_triangles
     halfedges*: seq[int32]  # trimmed version of d_halfedges
     hull*: seq[uint32]
+    vectors*: seq[T] # cell rays
 
     # Arrays that will store the triangulation graph
     trianglesLen: int32
@@ -525,6 +526,29 @@ proc update*[T](this: var Delaunator) =
   for i in 0 ..< hullSize:
     this.hull[i] = uint32(e)
     e = int(this.d_hullNext[e])
+
+  # compute rays needed for infinate region clipping
+  this.vectors = newSeq[T](this.coords.len * 2)
+  var
+    h = this.hull[^1]
+    p0, p1 = h * 4
+    x0, x1 = this.coords[2 * h]
+    y0, y1 = this.coords[2 * h + 1]
+  for i in 0 ..< this.hull.len:
+    h = this.hull[i]
+    p0 = p1
+    x0 = x1
+    y0 = y1
+    p1 = h * 4
+    x1 = this.coords[2 * h]
+    y1 = this.coords[2 * h + 1]
+    let
+      yDlta = y0 - y1
+      xDlta = x1 - x0
+    this.vectors[p1] = yDlta
+    this.vectors[p0 + 2] = yDlta
+    this.vectors[p1 + 1] = xDlta
+    this.vectors[p0 + 3] = xDlta
 
   # Build the index of point id to leftmost incoming halfedge
   clear(this.d_pointToLeftmostHalfedgeIndex)

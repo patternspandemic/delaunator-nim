@@ -169,6 +169,10 @@ func edgeIdsAroundPoint*(d: Delaunator, e: int32): seq[int32] =
   return edgeIds
 
 
+# TODO: // degenerate case? (1 valid point: return the box)
+#    if (i === 0 && this.delaunay.hull.length === 1) {
+#      return [this.xmax, this.ymin, this.xmax, this.ymax, this.xmin, this.ymax, this.xmin, this.ymin];
+#    }
 iterator iterVoronoiRegions*[T](d: Delaunator[T]): tuple[p: uint32, verts: seq[array[2, T]]] =
   ## Provides an iterator yielding values for each region of the voronoi diagram.
   ## The values yielded are the id of the point to which the region belongs, and
@@ -193,13 +197,25 @@ iterator iterVoronoiRegions*[T](d: Delaunator[T]): tuple[p: uint32, verts: seq[a
 
 
 # FIXME: Does not provide clipped regions for points on hull
-func voronoiRegion*[T](d: Delaunator[T], p: int32): tuple[p: int32, verts: seq[array[2, T]]] =
+# TODO: // degenerate case (1 valid point: return the box)
+#    if (i === 0 && this.delaunay.hull.length === 1) {
+#      return [this.xmax, this.ymin, this.xmax, this.ymax, this.xmin, this.ymax, this.xmin, this.ymin];
+#    }
+proc voronoiRegion*[T](d: Delaunator[T], p: int32): tuple[p: int32, verts: seq[array[2, T]]] =
   let
     incomming = pointToLeftmostHalfedge(d, p)
     edgeIds = edgeIdsAroundPoint(d, incomming)
     triangleIds = map(edgeIds, proc(h: int32): int32 = triangleIdOfEdge(h))
     vertices = map(triangleIds, proc(t: int32): array[2, T] = triangleCircumcenter(d, t))
-  return (int32(p), vertices)
+    inHullAt = find(d.hull, uint32(p))
+  if inHullAt == -1: # Not a hull site
+    return (int32(p), vertices)
+  else:
+    # must clip infinite region
+    let
+      v = p * 4
+      ply = InfConvexPoly[T](points: vertices, v0: [d.vectors[v], d.vectors[v + 1]], vn: [d.vectors[v + 2], d.vectors[v + 3]])
+    return (int32(p), clipInfinite[T](ply, 0.0, 0.0, 500.0, 500.0)) # FIXME: Bounds
 
 
 iterator iterPoints*[T](d: Delaunator[T]): tuple[id: int, p: array[2, T]] =
