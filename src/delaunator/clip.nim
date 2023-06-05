@@ -52,50 +52,50 @@ func centroid[T](polygon: seq[array[2, T]]): array[2, T] =
   return [x / k, y / k]
 
 
+func project*[T](p, v: array[2, T], xMin, yMin, xMax, yMax: T): Option[array[2, T]] =
+  var
+    t = Inf
+    c, x, y: T
+
+  if v[1] < 0.0: # top
+    if p[1] <= yMin: return # none(array[2,T])
+    c = (yMin - p[1]) / v[1]
+    if c < t:
+      y = yMin
+      x = p[0] + c * v[0]
+      t = c
+  elif v[1] > 0.0: # bottom
+    if p[1] >= yMax: return  # none(array[2,T])
+    c = (yMax - p[1]) / v[1]
+    if c < t:
+      y = yMax
+      x = p[0] + c * v[0]
+      t = c
+
+  if v[0] > 0.0: # right
+    if p[0] >= xMax: return  # none(array[2,T])
+    c = (xMax - p[0]) / v[0]
+    if c < t:
+      x = xMax
+      y = p[1] + c * v[1]
+      t = c
+  elif v[0] < 0.0: # left
+    if p[0] <= xMin: return # none(array[2,T])
+    c = (xMin - p[0]) / v[0]
+    if c < t:
+      x = xMin
+      y = p[1] + c * v[1]
+      t = c
+
+  return some([x, y])
+
+
 proc clipInfinite*[T](polygon: InfConvexPoly[T], xMin, yMin, xMax, yMax: T): seq[array[2, T]] =
   let # so inner procs can close over bounds
     xMin = xMin
     yMin = yMin
     xMax = xMax
     yMax = yMax
-
-
-  func project[T](p, v: array[2, T]): Option[array[2, T]] =
-    var
-      t = Inf
-      c, x, y: T
-
-    if v[1] < 0.0: # top
-      if p[1] <= yMin: return # none(array[2,T])
-      c = (yMin - p[1]) / v[1]
-      if c < t:
-        y = yMin
-        x = p[0] + c * v[0]
-        t = c
-    elif v[1] > 0.0: # bottom
-      if p[1] >= yMax: return  # none(array[2,T])
-      c = (yMax - p[1]) / v[1]
-      if c < t:
-        y = yMax
-        x = p[0] + c * v[0]
-        t = c
-
-    if v[0] > 0.0: # right
-      if p[0] >= xMax: return  # none(array[2,T])
-      c = (xMax - p[0]) / v[0]
-      if c < t:
-        x = xMax
-        y = p[1] + c * v[1]
-        t = c
-    elif v[0] < 0.0: # left
-      if p[0] <= xMin: return # none(array[2,T])
-      c = (xMin - p[0]) / v[0]
-      if c < t:
-        x = xMin
-        y = p[1] + c * v[1]
-        t = c
-
-    return some([x, y])
 
 
   func clockwise(p, q, r: array[2, T]): bool =
@@ -168,9 +168,9 @@ proc clipInfinite*[T](polygon: InfConvexPoly[T], xMin, yMin, xMax, yMax: T): seq
     ply = polygon.points
     p: Option[array[2, T]]
     n: int
-  p = project[T](ply[0], polygon.v0)
+  p = project[T](ply[0], polygon.v0, xMin, yMin, xMax, yMax)
   if p.isSome: ply.insert(@[p.get]) # FIXME: Better way than insert?
-  p = project[T](ply[^1], polygon.vn)
+  p = project[T](ply[^1], polygon.vn, xMin, yMin, xMax, yMax)
   if p.isSome: ply.insert(@[p.get])
   ply = clip(ply)
   n = ply.len

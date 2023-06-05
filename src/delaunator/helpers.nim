@@ -1,7 +1,7 @@
 # TODO: inline things
 #       iterators sans ids?
 
-import std/[math, sequtils, sets, sugar]
+import std/[math, sequtils, sets, sugar, options]
 
 import ../delaunator
 import clip
@@ -121,6 +121,9 @@ func triangleCentroid*[T](d: Delaunator[T], t: int32): array[2, T] =
   return [x, y]
 
 
+# TODO: polygonCentroid from clip
+
+
 func triangleCircumcenter*[T](d: Delaunator[T], t: int32): array[2, T] =
   ## The circumcenter of triangle with id `t`.
   let
@@ -130,25 +133,6 @@ func triangleCircumcenter*[T](d: Delaunator[T], t: int32): array[2, T] =
     p3 = [d.coords[2 * pids[2]], d.coords[2 * pids[2] + 1]]
     (cx, cy) = circumcenter(p1[0], p1[1], p2[0], p2[1], p3[0], p3[1])
   return [cx, cy]
-
-iterator iterVoronoiEdges*[T](d: Delaunator[T]): tuple[e: int; p, q: array[2, T]] =
-  ## Provides an iterator yielding values for each bisecting voronoi edge of the
-  ## graph dual to the triangulation. The values yielded are the id of the
-  ## halfedge chosen for the bisected edge, an array describing the
-  ## circumcenter of the triangle for which that halfedge is a part, and an
-  ## array describing the circumcenter of the adjacent triangle for which that
-  ## halfedge's compliment is a part. Excluded by default are infinite voronoi
-  ## edges, which result from bisecting halfedges on the hull. For such bisectors
-  ## to be included, a bounding region must be provided to clip these edges against.
-  ## TODO: Support voronoi edges of the hull. Perhaps use the vectors and project clipping proc?
-  var e = 0
-  while e < d.triangles.len:
-    if e < d.halfedges[e]: # excludes halfedges on hull
-      let
-        p = triangleCircumcenter[T](d, triangleIdOfEdge(int32(e)))
-        q = triangleCircumcenter[T](d, triangleIdOfEdge(d.halfedges[e]))
-      yield (e, p, q)
-    inc e
 
 
 func edgeIdsAroundPoint*(d: Delaunator, e: int32): seq[int32] =
@@ -164,6 +148,42 @@ func edgeIdsAroundPoint*(d: Delaunator, e: int32): seq[int32] =
   return edgeIds
 
 
+iterator iterVoronoiEdges*[T](d: Delaunator[T]): tuple[e: int; p, q: array[2, T]] =
+  ## Provides an iterator yielding values for each bisecting voronoi edge of the
+  ## graph dual to the triangulation. For finite edges, the values yielded are
+  ## the id of the halfedge chosen for the bisected edge, an array describing
+  ## the circumcenter of the triangle for which that halfedge is a part, and an
+  ## array describing the circumcenter of the adjacent triangle for which that
+  ## halfedge's compliment is a part. For infinite edges, the ids assigned are
+  ## arbitrarily negative. The first array describes the circumcenter of the
+  ## hull triangle, and the second the point projected by the ray onto the
+  ## delaunator object's defined bounds.
+  # First yield edges of finite regions
+  var e = 0
+  while e < d.triangles.len:
+    if e < d.halfedges[e]: # excludes halfedges on hull
+      let
+        p = triangleCircumcenter[T](d, triangleIdOfEdge(int32(e)))
+        q = triangleCircumcenter[T](d, triangleIdOfEdge(d.halfedges[e]))
+      yield (e, p, q)
+    inc e
+  var i = -1 # projected edge ids have negative id, tradeoff :/
+  # Second, yield an edge representing one projected
+  # ray of each infinite region on the hull.
+  for p in d.hull:
+    let
+      incomming = pointToLeftmostHalfedge(d, int32(p))
+      edgeIds = edgeIdsAroundPoint(d, incomming)
+      triangleIds = map(edgeIds, proc(h: int32): int32 = triangleIdOfEdge(h))
+      vertices = map(triangleIds, proc(t: int32): array[2, T] = triangleCircumcenter(d, t))
+      v = p * 4
+      pjctd = project(vertices[0], [d.vectors[v], d.vectors[v + 1]], d.bounds.minX, d.bounds.minY, d.bounds.maxX, d.bounds.maxY)
+    if pjctd.isSome:
+      yield (i, vertices[0], pjctd.get)
+      dec i
+
+
+# TODO: return tuple p as int?
 # TODO: // degenerate case? (1 valid point: return the box)
 #    if (i === 0 && this.delaunay.hull.length === 1) {
 #      return [this.xmax, this.ymin, this.xmax, this.ymax, this.xmin, this.ymax, this.xmin, this.ymin];
@@ -202,6 +222,7 @@ iterator iterVoronoiRegions*[T](d: Delaunator[T]): tuple[p: uint32, verts: seq[a
     inc e
 
 
+# TODO: return tuple p as int?
 # TODO: // degenerate case (1 valid point: return the box)
 #    if (i === 0 && this.delaunay.hull.length === 1) {
 #      return [this.xmax, this.ymin, this.xmax, this.ymax, this.xmin, this.ymax, this.xmin, this.ymin];
