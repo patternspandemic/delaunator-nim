@@ -121,7 +121,23 @@ func triangleCentroid*[T](d: Delaunator[T], t: int32): array[2, T] =
   return [x, y]
 
 
-# TODO: polygonCentroid from clip
+func polygonCentroid*[T](polygon: seq[array[2, T]]): array[2, T] =
+  ## The centroid of points defining `polygon`.
+  var
+    x, y, k: T = 0.0
+    a, b: array[2, T]
+
+  b = polygon[^1]
+  for i in 0 ..< polygon.len:
+    a = b
+    b = polygon[i]
+    let c = a[0] * b[1] - b[0] * a[1]
+    k += c
+    x += (a[0] + b[0]) * c
+    y += (a[1] + b[1]) * c
+
+  k *= 3.0
+  return [x / k, y / k]
 
 
 func triangleCircumcenter*[T](d: Delaunator[T], t: int32): array[2, T] =

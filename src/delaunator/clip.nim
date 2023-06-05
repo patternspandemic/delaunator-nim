@@ -11,47 +11,6 @@ type
     v0*, vn*: array[2, T]
 
 
-# TODO: Find where this is called. in linked example
-#[
-function centroid(polygon) {
-  var i = -1,
-      n = polygon.length,
-      x = 0,
-      y = 0,
-      a,
-      b = polygon[n - 1],
-      c,
-      k = 0;
-
-  while (++i < n) {
-    a = b;
-    b = polygon[i];
-    k += c = a[0] * b[1] - b[0] * a[1];
-    x += (a[0] + b[0]) * c;
-    y += (a[1] + b[1]) * c;
-  }
-
-  return k *= 3, [x / k, y / k];
-}
-]#
-func centroid[T](polygon: seq[array[2, T]]): array[2, T] =
-  var
-    x, y, k: T = 0.0
-    a, b: array[2, T]
-
-  b = polygon[^1]
-  for i in 0 ..< polygon.len:
-    a = b
-    b = polygon[i]
-    let c = a[0] * b[1] - b[0] * a[1]
-    k += c
-    x += (a[0] + b[0]) * c
-    y += (a[1] + b[1]) * c
-
-  k *= 3.0
-  return [x / k, y / k]
-
-
 func project*[T](p, v: array[2, T], xMin, yMin, xMax, yMax: T): Option[array[2, T]] =
   var
     t = Inf
