@@ -27,11 +27,6 @@ bounds
 - iterVoronoiRegions
 - voronoiRegion
 
-midpoint
-perpBisectSlope
-yIntercept
-abcOfBisector
-
 etc...
 onion
 centroids (of regions)
@@ -145,7 +140,7 @@ iterator iterVoronoiEdges*[T](d: Delaunator[T]): tuple[e: int; p, q: array[2, T]
   ## halfedge's compliment is a part. Excluded by default are infinite voronoi
   ## edges, which result from bisecting halfedges on the hull. For such bisectors
   ## to be included, a bounding region must be provided to clip these edges against.
-  ## TODO: Support voronoi edges of the hull. (via overloaded iterator?)
+  ## TODO: Support voronoi edges of the hull. Perhaps use the vectors and project clipping proc?
   var e = 0
   while e < d.triangles.len:
     if e < d.halfedges[e]: # excludes halfedges on hull
@@ -176,32 +171,43 @@ func edgeIdsAroundPoint*(d: Delaunator, e: int32): seq[int32] =
 iterator iterVoronoiRegions*[T](d: Delaunator[T]): tuple[p: uint32, verts: seq[array[2, T]]] =
   ## Provides an iterator yielding values for each region of the voronoi diagram.
   ## The values yielded are the id of the point to which the region belongs, and
-  ## a seq of vertices describing the region's polygon. Excluded by default
-  ## are infinite unbound regions. For such regions to be included, a bounding
-  ## region must be provided to clip these regions against.
-  ## TODO: Support voronoi regions of the hull. (via overloaded iterator?)
+  ## a seq of vertices describing the region's polygon. Infinite regions are
+  ## clipped to the bounds as set on the delaunator object, defaulting to the
+  ## minimum and maximum extents of the points provided. Clipped regions which
+  ## are completely out of bounds are not yielded, wheras finite regions are
+  ## always yielded whether in bounds or not, and are not clipped.
   var
-    # Do not yield regions of hull points by default
-    seen = toHashSet(d.hull)
+    seen: HashSet[uint32]
     e = 0
   while e < d.triangles.len:
     let p = d.triangles[nextHalfedge(int32(e))]
     if not seen.contains(p):
       seen.incl(p)
       let
-        edgeIds = edgeIdsAroundPoint(d, int32(e))
+        incomming = pointToLeftmostHalfedge(d, int32(p))
+        edgeIds = edgeIdsAroundPoint(d, incomming)
         triangleIds = map(edgeIds, proc(h: int32): int32 = triangleIdOfEdge(h))
         vertices = map(triangleIds, proc(t: int32): array[2, T] = triangleCircumcenter(d, t))
-      yield (p, vertices)
+        inHullAt = find(d.hull, p)
+      if inHullAt == -1: # Not a hull site
+        yield (p, vertices)
+      else:
+        # must clip infinite region
+        let
+          v = p * 4 # index into ray vectors
+          ply = InfConvexPoly[T](points: vertices, v0: [d.vectors[v], d.vectors[v + 1]], vn: [d.vectors[v + 2], d.vectors[v + 3]])
+          clipped = clipInfinite[T](ply, d.bounds.minX, d.bounds.minY, d.bounds.maxX, d.bounds.maxY)
+        if clipped.len != 0:
+          yield (p, clipped)
     inc e
 
 
-# FIXME: Does not provide clipped regions for points on hull
 # TODO: // degenerate case (1 valid point: return the box)
 #    if (i === 0 && this.delaunay.hull.length === 1) {
 #      return [this.xmax, this.ymin, this.xmax, this.ymax, this.xmin, this.ymax, this.xmin, this.ymin];
 #    }
-proc voronoiRegion*[T](d: Delaunator[T], p: int32): tuple[p: int32, verts: seq[array[2, T]]] =
+# TODO: doc that this will return empty verts when completely clipped out of bounds.
+proc voronoiRegion*[T](d: Delaunator[T], p: int32): tuple[p: uint32, verts: seq[array[2, T]]] =
   let
     incomming = pointToLeftmostHalfedge(d, p)
     edgeIds = edgeIdsAroundPoint(d, incomming)
@@ -209,13 +215,13 @@ proc voronoiRegion*[T](d: Delaunator[T], p: int32): tuple[p: int32, verts: seq[a
     vertices = map(triangleIds, proc(t: int32): array[2, T] = triangleCircumcenter(d, t))
     inHullAt = find(d.hull, uint32(p))
   if inHullAt == -1: # Not a hull site
-    return (int32(p), vertices)
+    return (uint32(p), vertices)
   else:
     # must clip infinite region
     let
-      v = p * 4
+      v = p * 4 # index into ray vectors
       ply = InfConvexPoly[T](points: vertices, v0: [d.vectors[v], d.vectors[v + 1]], vn: [d.vectors[v + 2], d.vectors[v + 3]])
-    return (int32(p), clipInfinite[T](ply, 0.0, 0.0, 500.0, 500.0)) # FIXME: Bounds
+    return (uint32(p), clipInfinite[T](ply, d.bounds.minX, d.bounds.minY, d.bounds.maxX, d.bounds.maxY))
 
 
 iterator iterPoints*[T](d: Delaunator[T]): tuple[id: int, p: array[2, T]] =
@@ -252,3 +258,6 @@ iterator iterHullEdges*[T](d: Delaunator[T]): tuple[e: int; p, q: array[2, T]] =
       q = [d.coords[2 * qid], d.coords[2 * qid + 1]]
     yield (e, p, q)
     inc e
+
+
+#TODO: hullPointVectors?

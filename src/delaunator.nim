@@ -19,6 +19,7 @@ type
     halfedges*: seq[int32]  # trimmed version of d_halfedges
     hull*: seq[uint32]
     vectors*: seq[T] # cell rays
+    bounds*: tuple[minX, minY, maxX, maxY: T] # clipping bounds for infinate voronoi regions
 
     # Arrays that will store the triangulation graph
     trianglesLen: int32
@@ -321,6 +322,9 @@ proc update*[T](this: var Delaunator) =
   let
     cx = (this.minX + this.maxX) / 2
     cy = (this.minY + this.maxY) / 2
+
+  # default clipping bounds
+  this.bounds = (this.minX, this.minY, this.maxX, this.maxY)
 
   var
     i0, i1, i2: int
