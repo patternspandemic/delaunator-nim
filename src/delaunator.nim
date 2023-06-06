@@ -2,6 +2,12 @@
 
 # Up to date with mapbox/Delaunator at 103acb4564a36ad2dff11dc0135a348f4e8fc149 May 27, 2032
 
+# TODO: Consider using int64 for type of halfedge indice, due to their use as
+# index into triangles to reference points. As int32, they'd be unable to ref
+# a point in a set larger than high(int32). A signed type is required by
+# halfedges, as it uses '-1' to mark hull complements.
+
+
 import std/[math, tables]
 from std/fenv import epsilon
 from std/algorithm import fill
@@ -51,8 +57,8 @@ func hullPrev*(d: Delaunator, id: uint32): uint32 =
   d.d_hullPrev[id]
 
 
-func pointToLeftmostHalfedge*(d: Delaunator, id: int32): int32 =
-  return d.d_pointToLeftmostHalfedgeIndex[uint32(id)]
+func pointToLeftmostHalfedge*(d: Delaunator, pid: uint32): int32 =
+  return d.d_pointToLeftmostHalfedgeIndex[pid]
 
 
 proc swap(arr: var seq[uint32]; i, j: int) {.inline.} =
