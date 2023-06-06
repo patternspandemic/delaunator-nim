@@ -166,37 +166,42 @@ func edgeIdsAroundPoint*(d: Delaunator, e: int32): seq[int32] =
 
 iterator iterVoronoiEdges*[T](d: Delaunator[T]): tuple[e: int; p, q: array[2, T]] =
   ## Provides an iterator yielding values for each bisecting voronoi edge of the
-  ## graph dual to the triangulation. For finite edges, the values yielded are
-  ## the id of the halfedge chosen for the bisected edge, an array describing
-  ## the circumcenter of the triangle for which that halfedge is a part, and an
-  ## array describing the circumcenter of the adjacent triangle for which that
-  ## halfedge's compliment is a part. For infinite edges, the ids assigned are
-  ## arbitrarily negative. The first array describes the circumcenter of the
-  ## hull triangle, and the second the point projected by the ray onto the
-  ## delaunator object's defined bounds.
+  ## triangulation. For finite edges, the values yielded are the id of the
+  ## halfedge chosen for the bisected edge, an array describing the circumcenter
+  ## of the triangle for which that halfedge is a part, and an array describing
+  ## the circumcenter of the adjacent triangle for which that halfedge's
+  ## compliment is a part. For infinite edges, the id is of a halfedge on the
+  ## hull. The first array describes the circumcenter of the triangle for which
+  ## that halfedge is a part, and the second, the point projected by the halfedge
+  ## origin's rightmost ray onto the delaunator object's defined bounds.
   # First yield edges of finite regions
   var e = 0
   while e < d.triangles.len:
-    if e < d.halfedges[e]: # excludes halfedges on hull
+    if e < d.halfedges[e]: # yield only half the edge, excludes halfedges on hull
       let
         p = triangleCircumcenter[T](d, triangleIdOfEdge(int32(e)))
         q = triangleCircumcenter[T](d, triangleIdOfEdge(d.halfedges[e]))
       yield (e, p, q)
     inc e
-  var i = -1 # projected edge ids have negative id, tradeoff :/
-  # Second, yield an edge representing one projected
-  # ray of each infinite region on the hull.
-  for p in d.hull:
+  var
+    # collect the ids of halfedges on hull
+    eids = collect(newSeqOfCap(d.hull.len)):
+      for id, val in d.halfedges.pairs:
+        if val == -1: id
+  # Second, yield an edge representing rightmost projectedray (from
+  # persp. of hull point) of each infinite region on the hull.
+  for i in countdown(eids.len - 1, 0):
     let
+      e = eids[i]
+      p = d.triangles[e]
       incomming = pointToLeftmostHalfedge(d, int32(p))
       edgeIds = edgeIdsAroundPoint(d, incomming)
       triangleIds = map(edgeIds, proc(h: int32): int32 = triangleIdOfEdge(h))
       vertices = map(triangleIds, proc(t: int32): array[2, T] = triangleCircumcenter(d, t))
       v = p * 4
-      pjctd = project(vertices[0], [d.vectors[v], d.vectors[v + 1]], d.bounds.minX, d.bounds.minY, d.bounds.maxX, d.bounds.maxY)
+      pjctd = project(vertices[^1], [d.vectors[v + 2], d.vectors[v + 3]], d.bounds.minX, d.bounds.minY, d.bounds.maxX, d.bounds.maxY)
     if pjctd.isSome:
-      yield (i, vertices[0], pjctd.get)
-      dec i
+      yield (e, vertices[^1], pjctd.get)
 
 
 # TODO: return tuple p as int?
@@ -271,6 +276,7 @@ iterator iterPoints*[T](d: Delaunator[T]): tuple[id: int, p: array[2, T]] =
     inc p
 
 
+# TODO: yield (hullIndex, point index, point)
 iterator iterHullPoints*[T](d: Delaunator[T]): tuple[id: int, p: array[2, T]] =
   ## Provides an iterator yielding values for each point of the triangulation's
   ## hull. The values yielded are the id of the point in `d.hull`, and an array
@@ -281,9 +287,10 @@ iterator iterHullPoints*[T](d: Delaunator[T]): tuple[id: int, p: array[2, T]] =
     inc p
 
 
+# TODO: yield (hullIndex e, pid, qid p, q)
 iterator iterHullEdges*[T](d: Delaunator[T]): tuple[e: int; p, q: array[2, T]] =
-  ## Provides an iterator yielding values for each edge of the triangulation's hull.
-  ## The values yielded are the id of the halfedge running from p to q, an array
+  ## Provides an iterator yielding values for each edge of the triangulation's
+  ## hull. The values yielded are the hull index of the halfedge running from p to q, an array
   ## describing the point the edge starts at, and an array describing the point
   ## the edge ends at.
   var e = 0
