@@ -276,32 +276,41 @@ iterator iterPoints*[T](d: Delaunator[T]): tuple[id: int, p: array[2, T]] =
     inc p
 
 
-# TODO: yield (hullIndex, point index, point)
-iterator iterHullPoints*[T](d: Delaunator[T]): tuple[id: int, p: array[2, T]] =
+iterator iterHullPoints*[T](d: Delaunator[T]): tuple[id: int, pid: uint32, p: array[2, T]] =
   ## Provides an iterator yielding values for each point of the triangulation's
-  ## hull. The values yielded are the id of the point in `d.hull`, and an array
-  ## describing the point's location.
+  ## hull. The values yielded are the hull id (index of the point in `d.hull`),
+  ## the id of the point, and an array describing the point's location.
   var p = 0
   while p < d.hull.len:
-    yield (p, [d.coords[2 * d.hull[p]], d.coords[2 * d.hull[p] + 1]])
+    let pid = d.hull[p]
+    yield (p, pid, [d.coords[2 * pid], d.coords[2 * pid + 1]])
     inc p
 
 
-# TODO: yield (hullIndex e, pid, qid p, q)
-iterator iterHullEdges*[T](d: Delaunator[T]): tuple[e: int; p, q: array[2, T]] =
+# TODO: yield (hullIndex e, halfedge id, pid, qid p, q)
+iterator iterHullEdges*[T](d: Delaunator[T]): tuple[hid, eid: int; pid, qid: uint32; p, q: array[2, T]] =
   ## Provides an iterator yielding values for each edge of the triangulation's
-  ## hull. The values yielded are the hull index of the halfedge running from p to q, an array
-  ## describing the point the edge starts at, and an array describing the point
-  ## the edge ends at.
-  var e = 0
-  while e < d.hull.len:
+  ## hull. The values yielded are the hull id (index of the point in `d.hull` the
+  ## edge starts at), the halfedge id, the point id from which the edge starts,
+  ## the point id at which the edge ends, an array describing the point the edge
+  ## starts at, and an array describing the point the edge ends at.
+  var
+    # collect the ids of halfedges on hull
+    eids = collect(newSeqOfCap(d.hull.len)):
+      for id, val in d.halfedges.pairs:
+        if val == -1: id
+    h = 0
+    e = eids.len - 1
+  while h < d.hull.len:
     let
-      pid = d.hull[e]
+      eid = eids[e]
+      pid = d.hull[h]
       qid = hullNext(d, pid)
       p = [d.coords[2 * pid], d.coords[2 * pid + 1]]
       q = [d.coords[2 * qid], d.coords[2 * qid + 1]]
-    yield (e, p, q)
-    inc e
+    yield (h, eid, pid, qid, p, q)
+    inc h
+    dec e
 
 
 #TODO: hullPointVectors?
