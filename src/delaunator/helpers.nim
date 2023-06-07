@@ -9,7 +9,6 @@ import clip
 # Region clipping based on https://observablehq.com/@mbostock/to-infinity-and-back-again
 
 #[
-bounds
 - halfedgeIdsOfTriange
 - triangleIdOfEdge
 - nextHalfedge
@@ -29,10 +28,9 @@ bounds
 
 etc...
 onion
-centroids (of regions)
 spanning tree
 neighbor sites
-circles (largest circle fitting the region of each site centered at site)
+circles (largest circle fitting the tri/region centered at some center)
 nearest site
 ]#
 
@@ -56,7 +54,7 @@ func nextHalfedge*(eid: int32): int32 =
 
 
 func prevHalfedge*(eid: int32): int32 =
-  # The id of the previous halfedge of the triangle for which halfedge with id `eid` is a part.
+  ## The id of the previous halfedge of the triangle for which halfedge with id `eid` is a part.
   if eid %% 3 == 0:
     return eid + 2
   else:
@@ -312,3 +310,5 @@ iterator iterHullEdges*[T](d: Delaunator[T]): tuple[hid: uint32; eid: int32; pid
 
 
 #TODO: hullPointVectors?
+#      iterPointNeighbors?
+#      iterOnionLayers
