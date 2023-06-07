@@ -63,12 +63,12 @@ func prevHalfedge*(eid: int32): int32 =
     return eid - 1
 
 
-iterator iterTriangleEdges*[T](d: Delaunator[T]): tuple[tid: uint32; eid: int; pid, qid: uint32, p, q: array[2, T]] =
+iterator iterTriangleEdges*[T](d: Delaunator[T]): tuple[tid: uint32; eid: int32; pid, qid: uint32, p, q: array[2, T]] =
   ## Provides an iterator yielding values for each edge of the triangulation.
   ## The values yielded are the id of the triangle, id of the halfedge chosen
   ## for the edge, id of starting and ending points, an array describing the
   ## point the edge starts at, and an array describing the point the edge ends at.
-  var e = 0
+  var e = 0'i32
   while e < d.triangles.len:
     if e > d.halfedges[e]:
       let
