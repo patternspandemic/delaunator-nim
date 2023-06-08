@@ -16,7 +16,12 @@ jobs:
         with:
           nim-version: ${{ env.nim-version }}
       - run: nimble install -Y
-      - run: nimble doc --docCmd:skip --index:on --project --git.url:https://github.com/${{ github.repository }} --git.commit:main  --out:${{ env.deploy-dir }} ${{ env.nim-src }}
+      - name: "Build docs"
+      - run: nimble doc --docCmd:skip --index:on --git.url:https://github.com/${{ github.repository }} --git.commit:main --outdir:${{ env.deploy-dir }} src/delaunator/helpers.nim
+      - run: nimble doc --docCmd:skip --index:on --git.url:https://github.com/${{ github.repository }} --git.commit:main --outdir:${{ env.deploy-dir }} src/delaunator/orient2d.nim
+      - run: nimble doc --docCmd:skip --index:on --git.url:https://github.com/${{ github.repository }} --git.commit:main --outdir:${{ env.deploy-dir }} src/delaunator/clip.nim
+      - run: nimble doc --docCmd:skip --index:on --git.url:https://github.com/${{ github.repository }} --git.commit:main --outdir:${{ env.deploy-dir }} src/delaunator.nim
+      - run: nim buildIndex -o:${{ env.deploy-dir }}/theindex.html ${{ env.deploy-dir }}
       - name: "Copy to index.html"
         run: cp ${{ env.deploy-dir }}/delaunator.html ${{ env.deploy-dir }}/index.html
       - name: Deploy documents
