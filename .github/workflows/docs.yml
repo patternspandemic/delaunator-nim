@@ -16,7 +16,6 @@ jobs:
         with:
           nim-version: ${{ env.nim-version }}
       - run: nimble install -Y
-      - name: "Build docs"
       - run: nimble doc --docCmd:skip --index:on --git.url:https://github.com/${{ github.repository }} --git.commit:main --outdir:${{ env.deploy-dir }} src/delaunator/helpers.nim
       - run: nimble doc --docCmd:skip --index:on --git.url:https://github.com/${{ github.repository }} --git.commit:main --outdir:${{ env.deploy-dir }} src/delaunator/orient2d.nim
       - run: nimble doc --docCmd:skip --index:on --git.url:https://github.com/${{ github.repository }} --git.commit:main --outdir:${{ env.deploy-dir }} src/delaunator/clip.nim
