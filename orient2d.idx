@@ -1,0 +1,1 @@
+orient2d	orient2d.html#orient2d,SomeFloat,SomeFloat,SomeFloat,SomeFloat,SomeFloat,SomeFloat	orient2d: orient2d(ax, ay, bx, by, cx, cy: SomeFloat): SomeFloat	

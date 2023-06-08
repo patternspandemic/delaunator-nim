@@ -1,0 +1,3 @@
+InfConvexPoly	clip.html#InfConvexPoly	clip: InfConvexPoly	
+project	clip.html#project,array[,T],array[,T],T,T,T,T	clip: project[T](p, v: array[2, T]; xMin, yMin, xMax, yMax: T): Option[array[2, T]]	
+clipInfinite	clip.html#clipInfinite,InfConvexPoly[T],T,T,T,T	clip: clipInfinite[T](polygon: InfConvexPoly[T]; xMin, yMin, xMax, yMax: T): seq[\n    array[2, T]]	

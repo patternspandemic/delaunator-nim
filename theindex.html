@@ -70,14 +70,24 @@ window.addEventListener('DOMContentLoaded', main);
 <div class="document" id="documentId">
   <div class="container">
     <h1 class="title">Index</h1>
-    Modules: <a href="delaunator.html">delaunator</a>, <a href="delaunator/orient2d.html">delaunator/orient2d</a>.<br/><p /><h2>API symbols</h2>
+    Modules: <a href="clip.html">clip</a>, <a href="delaunator.html">delaunator</a>, <a href="helpers.html">helpers</a>, <a href="orient2d.html">orient2d</a>.<br/><p /><h2>API symbols</h2>
 <dl><dt><a name="circumcenter" href="#circumcenter"><span>circumcenter:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="delaunator: circumcenter[F](ax, ay, bx, by, cx, cy: F): tuple[x, y: F]" href="delaunator.html#circumcenter%2CF%2CF%2CF%2CF%2CF%2CF">delaunator: circumcenter[F](ax, ay, bx, by, cx, cy: F): tuple[x, y: F]</a></li>
           </ul></dd>
+<dt><a name="clipInfinite" href="#clipInfinite"><span>clipInfinite:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="clip: clipInfinite[T](polygon: InfConvexPoly[T]; xMin, yMin, xMax, yMax: T): seq[
+    array[2, T]]" href="clip.html#clipInfinite%2CInfConvexPoly%5BT%5D%2CT%2CT%2CT%2CT">clip: clipInfinite[T](polygon: InfConvexPoly[T]; xMin, yMin, xMax, yMax: T): seq[
+    array[2, T]]</a></li>
+          </ul></dd>
 <dt><a name="Delaunator" href="#Delaunator"><span>Delaunator:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="delaunator: Delaunator" href="delaunator.html#Delaunator">delaunator: Delaunator</a></li>
+          </ul></dd>
+<dt><a name="edgeIdsAroundPoint" href="#edgeIdsAroundPoint"><span>edgeIdsAroundPoint:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="helpers: edgeIdsAroundPoint(d: Delaunator; eid: int32): seq[int32]" href="helpers.html#edgeIdsAroundPoint%2CDelaunator%2Cint32">helpers: edgeIdsAroundPoint(d: Delaunator; eid: int32): seq[int32]</a></li>
           </ul></dd>
 <dt><a name="fromCoords" href="#fromCoords"><span>fromCoords:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -89,6 +99,10 @@ window.addEventListener('DOMContentLoaded', main);
                  getY: proc (p: P): T = defaultGetY): Delaunator[T]" href="delaunator.html#fromPoints%2Cseq%5BP%5D%2Cproc%28P%29%2Cproc%28P%29">delaunator: fromPoints[P, T](points: seq[P]; getX: proc (p: P): T = defaultGetX;
                  getY: proc (p: P): T = defaultGetY): Delaunator[T]</a></li>
           </ul></dd>
+<dt><a name="halfedgeIdsOfTriangle" href="#halfedgeIdsOfTriangle"><span>halfedgeIdsOfTriangle:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="helpers: halfedgeIdsOfTriangle(tid: uint32): array[3, int32]" href="helpers.html#halfedgeIdsOfTriangle%2Cuint32">helpers: halfedgeIdsOfTriangle(tid: uint32): array[3, int32]</a></li>
+          </ul></dd>
 <dt><a name="hullNext" href="#hullNext"><span>hullNext:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="delaunator: hullNext(d: Delaunator; id: uint32): uint32" href="delaunator.html#hullNext%2CDelaunator%2Cuint32">delaunator: hullNext(d: Delaunator; id: uint32): uint32</a></li>
@@ -97,24 +111,108 @@ window.addEventListener('DOMContentLoaded', main);
 <li><a class="reference external"
           data-doc-search-tag="delaunator: hullPrev(d: Delaunator; id: uint32): uint32" href="delaunator.html#hullPrev%2CDelaunator%2Cuint32">delaunator: hullPrev(d: Delaunator; id: uint32): uint32</a></li>
           </ul></dd>
+<dt><a name="InfConvexPoly" href="#InfConvexPoly"><span>InfConvexPoly:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="clip: InfConvexPoly" href="clip.html#InfConvexPoly">clip: InfConvexPoly</a></li>
+          </ul></dd>
+<dt><a name="iterHullEdges" href="#iterHullEdges"><span>iterHullEdges:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="helpers: iterHullEdges[T](d: Delaunator[T]): tuple[hid: uint32, eid: int32,
+    pid, qid: uint32, p, q: array[2, T]]" href="helpers.html#iterHullEdges.i%2CDelaunator%5BT%5D">helpers: iterHullEdges[T](d: Delaunator[T]): tuple[hid: uint32, eid: int32,
+    pid, qid: uint32, p, q: array[2, T]]</a></li>
+          </ul></dd>
+<dt><a name="iterHullPoints" href="#iterHullPoints"><span>iterHullPoints:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="helpers: iterHullPoints[T](d: Delaunator[T]): tuple[hid: uint32, pid: uint32,
+    p: array[2, T]]" href="helpers.html#iterHullPoints.i%2CDelaunator%5BT%5D">helpers: iterHullPoints[T](d: Delaunator[T]): tuple[hid: uint32, pid: uint32,
+    p: array[2, T]]</a></li>
+          </ul></dd>
+<dt><a name="iterPoints" href="#iterPoints"><span>iterPoints:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="helpers: iterPoints[T](d: Delaunator[T]): tuple[pid: uint32, p: array[2, T]]" href="helpers.html#iterPoints.i%2CDelaunator%5BT%5D">helpers: iterPoints[T](d: Delaunator[T]): tuple[pid: uint32, p: array[2, T]]</a></li>
+          </ul></dd>
+<dt><a name="iterTriangleEdges" href="#iterTriangleEdges"><span>iterTriangleEdges:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="helpers: iterTriangleEdges[T](d: Delaunator[T]): tuple[tid: uint32, eid: int32,
+    pid, qid: uint32, p, q: array[2, T]]" href="helpers.html#iterTriangleEdges.i%2CDelaunator%5BT%5D">helpers: iterTriangleEdges[T](d: Delaunator[T]): tuple[tid: uint32, eid: int32,
+    pid, qid: uint32, p, q: array[2, T]]</a></li>
+          </ul></dd>
+<dt><a name="iterTriangles" href="#iterTriangles"><span>iterTriangles:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="helpers: iterTriangles[T](d: Delaunator[T]): tuple[tid: uint32, pid, qid, rid: uint32,
+    p, q, r: array[2, T]]" href="helpers.html#iterTriangles.i%2CDelaunator%5BT%5D">helpers: iterTriangles[T](d: Delaunator[T]): tuple[tid: uint32, pid, qid, rid: uint32,
+    p, q, r: array[2, T]]</a></li>
+          </ul></dd>
+<dt><a name="iterVoronoiEdges" href="#iterVoronoiEdges"><span>iterVoronoiEdges:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="helpers: iterVoronoiEdges[T](d: Delaunator[T]): tuple[eid: int32, p, q: array[2, T]]" href="helpers.html#iterVoronoiEdges.i%2CDelaunator%5BT%5D">helpers: iterVoronoiEdges[T](d: Delaunator[T]): tuple[eid: int32, p, q: array[2, T]]</a></li>
+          </ul></dd>
+<dt><a name="iterVoronoiRegions" href="#iterVoronoiRegions"><span>iterVoronoiRegions:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="helpers: iterVoronoiRegions[T](d: Delaunator[T]): tuple[pid: uint32,
+    verts: seq[array[2, T]]]" href="helpers.html#iterVoronoiRegions.i%2CDelaunator%5BT%5D">helpers: iterVoronoiRegions[T](d: Delaunator[T]): tuple[pid: uint32,
+    verts: seq[array[2, T]]]</a></li>
+          </ul></dd>
+<dt><a name="nextHalfedge" href="#nextHalfedge"><span>nextHalfedge:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="helpers: nextHalfedge(eid: int32): int32" href="helpers.html#nextHalfedge%2Cint32">helpers: nextHalfedge(eid: int32): int32</a></li>
+          </ul></dd>
 <dt><a name="orient2d" href="#orient2d"><span>orient2d:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="orient2d: orient2d(ax, ay, bx, by, cx, cy: SomeFloat): SomeFloat" href="delaunator/orient2d.html#orient2d%2CSomeFloat%2CSomeFloat%2CSomeFloat%2CSomeFloat%2CSomeFloat%2CSomeFloat">orient2d: orient2d(ax, ay, bx, by, cx, cy: SomeFloat): SomeFloat</a></li>
+          data-doc-search-tag="orient2d: orient2d(ax, ay, bx, by, cx, cy: SomeFloat): SomeFloat" href="orient2d.html#orient2d%2CSomeFloat%2CSomeFloat%2CSomeFloat%2CSomeFloat%2CSomeFloat%2CSomeFloat">orient2d: orient2d(ax, ay, bx, by, cx, cy: SomeFloat): SomeFloat</a></li>
+          </ul></dd>
+<dt><a name="pointIdsOfTriangle" href="#pointIdsOfTriangle"><span>pointIdsOfTriangle:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="helpers: pointIdsOfTriangle(d: Delaunator; tid: uint32): seq[uint32]" href="helpers.html#pointIdsOfTriangle%2CDelaunator%2Cuint32">helpers: pointIdsOfTriangle(d: Delaunator; tid: uint32): seq[uint32]</a></li>
           </ul></dd>
 <dt><a name="pointToLeftmostHalfedge" href="#pointToLeftmostHalfedge"><span>pointToLeftmostHalfedge:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="delaunator: pointToLeftmostHalfedge(d: Delaunator; pid: uint32): int32" href="delaunator.html#pointToLeftmostHalfedge%2CDelaunator%2Cuint32">delaunator: pointToLeftmostHalfedge(d: Delaunator; pid: uint32): int32</a></li>
           </ul></dd>
+<dt><a name="polygonCentroid" href="#polygonCentroid"><span>polygonCentroid:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="helpers: polygonCentroid[T](polygon: seq[array[2, T]]): array[2, T]" href="helpers.html#polygonCentroid%2Cseq%5Barray%5B%2CT%5D%5D">helpers: polygonCentroid[T](polygon: seq[array[2, T]]): array[2, T]</a></li>
+          </ul></dd>
+<dt><a name="prevHalfedge" href="#prevHalfedge"><span>prevHalfedge:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="helpers: prevHalfedge(eid: int32): int32" href="helpers.html#prevHalfedge%2Cint32">helpers: prevHalfedge(eid: int32): int32</a></li>
+          </ul></dd>
+<dt><a name="project" href="#project"><span>project:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="clip: project[T](p, v: array[2, T]; xMin, yMin, xMax, yMax: T): Option[array[2, T]]" href="clip.html#project%2Carray%5B%2CT%5D%2Carray%5B%2CT%5D%2CT%2CT%2CT%2CT">clip: project[T](p, v: array[2, T]; xMin, yMin, xMax, yMax: T): Option[array[2, T]]</a></li>
+          </ul></dd>
+<dt><a name="triangleCentroid" href="#triangleCentroid"><span>triangleCentroid:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="helpers: triangleCentroid[T](d: Delaunator[T]; tid: uint32): array[2, T]" href="helpers.html#triangleCentroid%2CDelaunator%5BT%5D%2Cuint32">helpers: triangleCentroid[T](d: Delaunator[T]; tid: uint32): array[2, T]</a></li>
+          </ul></dd>
+<dt><a name="triangleCircumcenter" href="#triangleCircumcenter"><span>triangleCircumcenter:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="helpers: triangleCircumcenter[T](d: Delaunator[T]; tid: uint32): array[2, T]" href="helpers.html#triangleCircumcenter%2CDelaunator%5BT%5D%2Cuint32">helpers: triangleCircumcenter[T](d: Delaunator[T]; tid: uint32): array[2, T]</a></li>
+          </ul></dd>
+<dt><a name="triangleIdOfEdge" href="#triangleIdOfEdge"><span>triangleIdOfEdge:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="helpers: triangleIdOfEdge(eid: int32): uint32" href="helpers.html#triangleIdOfEdge%2Cint32">helpers: triangleIdOfEdge(eid: int32): uint32</a></li>
+          </ul></dd>
+<dt><a name="triangleIdsAdjacentToTriangle" href="#triangleIdsAdjacentToTriangle"><span>triangleIdsAdjacentToTriangle:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="helpers: triangleIdsAdjacentToTriangle(d: Delaunator; tid: uint32): seq[uint32]" href="helpers.html#triangleIdsAdjacentToTriangle%2CDelaunator%2Cuint32">helpers: triangleIdsAdjacentToTriangle(d: Delaunator; tid: uint32): seq[uint32]</a></li>
+          </ul></dd>
 <dt><a name="update" href="#update"><span>update:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="delaunator: update[T](this: var Delaunator)" href="delaunator.html#update%2CDelaunator">delaunator: update[T](this: var Delaunator)</a></li>
+          </ul></dd>
+<dt><a name="voronoiRegion" href="#voronoiRegion"><span>voronoiRegion:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="helpers: voronoiRegion[T](d: Delaunator[T]; pid: uint32): tuple[pid: uint32,
+    verts: seq[array[2, T]]]" href="helpers.html#voronoiRegion%2CDelaunator%5BT%5D%2Cuint32">helpers: voronoiRegion[T](d: Delaunator[T]; pid: uint32): tuple[pid: uint32,
+    verts: seq[array[2, T]]]</a></li>
           </ul></dd>
 </dl>
     <div class="row">
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2023-06-08 00:10:07 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2023-06-08 17:12:21 UTC</small>
       </div>
     </div>
   </div>
