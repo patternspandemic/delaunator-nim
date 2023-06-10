@@ -9,7 +9,7 @@ Fast 2D Delaunay triangulation. A Nim port of [Mapbox/Delaunator](https://github
 
 See also, [Pixienator](https://github.com/patternspandemic/pixienator), a helper library for visualizing Delaunator using [Pixie](https://github.com/treeform/pixie).
 
-<img src="images/delaunator.png" alt="Delaunator generated image example.">
+<img src="delaunator.png" alt="Delaunator generated image example.">
 
 ### Features
 - Delaunay Triangulation
