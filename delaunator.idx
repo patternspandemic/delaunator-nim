@@ -1,4 +1,6 @@
 Delaunator	delaunator.html#Delaunator	delaunator: Delaunator	
+boundWidth	delaunator.html#boundWidth,Delaunator[T]	delaunator: boundWidth[T](d: Delaunator[T]): T	
+boundHeight	delaunator.html#boundHeight,Delaunator[T]	delaunator: boundHeight[T](d: Delaunator[T]): T	
 hullNext	delaunator.html#hullNext,Delaunator,uint32	delaunator: hullNext(d: Delaunator; id: uint32): uint32	
 hullPrev	delaunator.html#hullPrev,Delaunator,uint32	delaunator: hullPrev(d: Delaunator; id: uint32): uint32	
 pointToLeftmostHalfedge	delaunator.html#pointToLeftmostHalfedge,Delaunator,uint32	delaunator: pointToLeftmostHalfedge(d: Delaunator; pid: uint32): int32	
