@@ -271,8 +271,11 @@ proc orient2d*(ax, ay, bx, by, cx, cy: SomeFloat): SomeFloat =
     detright = (ax - cx) * (by - cy)
     det = detleft - detright
 
+  #[ https://github.com/mourner/robust-predicates/pull/7
+  # Remove redundant test for better branch predictability
   if detleft == 0 or detright == 0 or ((detleft > 0) != (detright > 0)):
     return det
+  ]#
 
   let detsum = abs(detleft + detright)
   if abs(det) >= ccwerrboundA * detsum:
