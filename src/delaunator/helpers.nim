@@ -27,6 +27,7 @@ import clip
 - voronoiRegion
 
 etc...
+point generators for uniform and normal distributions
 onion
 spanning tree
 neighbor sites
