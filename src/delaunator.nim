@@ -49,6 +49,14 @@ type
     d_pointToLeftmostHalfedgeIndex: Table[uint32, int32]
 
 
+func boundWidth*[T](d: Delaunator[T]): T =
+  return d.maxX - d.minX
+
+
+func boundHeight*[T](d: Delaunator[T]): T =
+  return d.maxY - d.minY
+
+
 func hullNext*(d: Delaunator, id: uint32): uint32 =
   d.d_hullNext[id]
 
