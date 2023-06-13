@@ -28,7 +28,6 @@ import clip
 
 etc...
 boundsCenter, hullCentroid
-point generators for uniform and normal distributions
 onion
 spanning tree
 neighbor sites
@@ -84,7 +83,26 @@ proc grid*[F](
   return coords
 
 
-# TODO: zipDists
+proc zipPolarDists*[F](r, t: openArray[F], xOffset, yOffset: F = F(0.0)): seq[F] =
+  var
+    m = min(r.len, t.len)
+    i = 0
+  newSeq(result, m * 2)
+  while i < m:
+    result[i * 2] = r[i] * cos(t[i]) + xOffset
+    result[i * 2 + 1] = r[i] * sin(t[i]) + yOffset
+    inc i
+
+
+proc zipDists*[F](s1, s2: openArray[F]): seq[F] =
+  var
+    m = min(s1.len, s2.len)
+    i = 0
+  newSeq(result, m * 2)
+  while i < m:
+    result[i * 2] = s1[i]
+    result[i * 2 + 1] = s2[i]
+    inc i
 
 
 func halfedgeIdsOfTriangle*(tid: uint32): array[3, int32] =
