@@ -1,6 +1,8 @@
 normalDist	helpers.html#normalDist,int,float,float,Rand	helpers: normalDist[F](count: int; mu = 0.0; sigma = 1.0; r: var Rand = randState()): seq[\n    F]	
 uniformDist	helpers.html#uniformDist,int,F,F,Rand	helpers: uniformDist[F](count: int; a: F; b: F; r: var Rand = randState()): seq[F]	
 grid	helpers.html#grid,int,int,F,F,F,F,bool,bool,bool,bool,F,F,bool,Rand	helpers: grid[F](n, m: int; fromN, toN, fromM, toM: F;\n        leftEdge, rightEdge, topEdge, bottomEdge: bool = true;\n        jitterN, jitterM: F = 0.0; pinHull: bool = false;\n        r: var Rand = randState()): seq[F]	
+zipPolarDists	helpers.html#zipPolarDists,openArray[F],openArray[F],F,F	helpers: zipPolarDists[F](r, t: openArray[F]; xOffset, yOffset: F = F(0.0)): seq[F]	
+zipDists	helpers.html#zipDists,openArray[F],openArray[F]	helpers: zipDists[F](s1, s2: openArray[F]): seq[F]	
 halfedgeIdsOfTriangle	helpers.html#halfedgeIdsOfTriangle,uint32	helpers: halfedgeIdsOfTriangle(tid: uint32): array[3, int32]	
 triangleIdOfEdge	helpers.html#triangleIdOfEdge,int32	helpers: triangleIdOfEdge(eid: int32): uint32	
 nextHalfedge	helpers.html#nextHalfedge,int32	helpers: nextHalfedge(eid: int32): int32	
