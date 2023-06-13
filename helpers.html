@@ -112,6 +112,17 @@ window.addEventListener('DOMContentLoaded', main);
     title="edgeIdsAroundPoint(d: Delaunator; eid: int32): seq[int32]">edgeIdsAroundPoint(d: Delaunator; eid: int32): seq[int32]</a></li>
 
   </ul>
+  <ul class="simple nested-toc-section">grid
+      <li><a class="reference" href="#grid%2Cint%2Cint%2CF%2CF%2CF%2CF%2Cbool%2Cbool%2Cbool%2Cbool%2CF%2CF%2Cbool%2CRand"
+    title="grid[F](n, m: int; fromN, toN, fromM, toM: F;
+        leftEdge, rightEdge, topEdge, bottomEdge: bool = true;
+        jitterN, jitterM: F = 0.0; pinHull: bool = false;
+        r: var Rand = randState()): seq[F]">grid[F](n, m: int; fromN, toN, fromM, toM: F;
+        leftEdge, rightEdge, topEdge, bottomEdge: bool = true;
+        jitterN, jitterM: F = 0.0; pinHull: bool = false;
+        r: var Rand = randState()): seq[F]</a></li>
+
+  </ul>
   <ul class="simple nested-toc-section">halfedgeIdsOfTriangle
       <li><a class="reference" href="#halfedgeIdsOfTriangle%2Cuint32"
     title="halfedgeIdsOfTriangle(tid: uint32): array[3, int32]">halfedgeIdsOfTriangle(tid: uint32): array[3, int32]</a></li>
@@ -120,6 +131,13 @@ window.addEventListener('DOMContentLoaded', main);
   <ul class="simple nested-toc-section">nextHalfedge
       <li><a class="reference" href="#nextHalfedge%2Cint32"
     title="nextHalfedge(eid: int32): int32">nextHalfedge(eid: int32): int32</a></li>
+
+  </ul>
+  <ul class="simple nested-toc-section">normalDist
+      <li><a class="reference" href="#normalDist%2Cint%2Cfloat%2Cfloat%2CRand"
+    title="normalDist[F](count: int; mu = 0.0; sigma = 1.0; r: var Rand = randState()): seq[
+    F]">normalDist[F](count: int; mu = 0.0; sigma = 1.0; r: var Rand = randState()): seq[
+    F]</a></li>
 
   </ul>
   <ul class="simple nested-toc-section">pointIdsOfTriangle
@@ -155,6 +173,11 @@ window.addEventListener('DOMContentLoaded', main);
   <ul class="simple nested-toc-section">triangleIdsAdjacentToTriangle
       <li><a class="reference" href="#triangleIdsAdjacentToTriangle%2CDelaunator%2Cuint32"
     title="triangleIdsAdjacentToTriangle(d: Delaunator; tid: uint32): seq[uint32]">triangleIdsAdjacentToTriangle(d: Delaunator; tid: uint32): seq[uint32]</a></li>
+
+  </ul>
+  <ul class="simple nested-toc-section">uniformDist
+      <li><a class="reference" href="#uniformDist%2Cint%2CF%2CF%2CRand"
+    title="uniformDist[F](count: int; a: F; b: F; r: var Rand = randState()): seq[F]">uniformDist[F](count: int; a: F; b: F; r: var Rand = randState()): seq[F]</a></li>
 
   </ul>
   <ul class="simple nested-toc-section">voronoiRegion
@@ -245,9 +268,24 @@ class="link-seesrc" target="_blank">Source</a>
 
 The ids of all halfedges pointing to the point that halfedge <tt class="docutils literal"><span class="pre"><span class="Identifier">eid</span></span></tt> points to.
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator/helpers.nim#L154"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator/helpers.nim#L205"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator/helpers.nim#L154" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator/helpers.nim#L205" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="grid,int,int,F,F,F,F,bool,bool,bool,bool,F,F,bool,Rand">
+<dt><pre><span class="Keyword">proc</span> <a href="#grid%2Cint%2Cint%2CF%2CF%2CF%2CF%2Cbool%2Cbool%2Cbool%2Cbool%2CF%2CF%2Cbool%2CRand"><span class="Identifier">grid</span></a><span class="Other">[</span><span class="Identifier">F</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">n</span><span class="Other">,</span> <span class="Identifier">m</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">;</span> <span class="Identifier">fromN</span><span class="Other">,</span> <span class="Identifier">toN</span><span class="Other">,</span> <span class="Identifier">fromM</span><span class="Other">,</span> <span class="Identifier">toM</span><span class="Other">:</span> <span class="Identifier">F</span><span class="Other">;</span>
+             <span class="Identifier">leftEdge</span><span class="Other">,</span> <span class="Identifier">rightEdge</span><span class="Other">,</span> <span class="Identifier">topEdge</span><span class="Other">,</span> <span class="Identifier">bottomEdge</span><span class="Other">:</span> <span class="Identifier">bool</span> <span class="Other">=</span> <span class="Identifier">true</span><span class="Other">;</span>
+             <span class="Identifier">jitterN</span><span class="Other">,</span> <span class="Identifier">jitterM</span><span class="Other">:</span> <span class="Identifier">F</span> <span class="Other">=</span> <span class="FloatNumber">0.0</span><span class="Other">;</span> <span class="Identifier">pinHull</span><span class="Other">:</span> <span class="Identifier">bool</span> <span class="Other">=</span> <span class="Identifier">false</span><span class="Other">;</span>
+             <span class="Identifier">r</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">Rand</span> <span class="Other">=</span> <span class="Identifier">randState</span><span class="Other">(</span><span class="Other">)</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">F</span><span class="Other">]</span></pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator/helpers.nim#L49"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator/helpers.nim#L49" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -257,9 +295,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 The halfedge ids of a triangle with id <tt class="docutils literal"><span class="pre"><span class="Identifier">tid</span></span></tt>.
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator/helpers.nim#L39"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator/helpers.nim#L90"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator/helpers.nim#L39" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator/helpers.nim#L90" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -269,9 +307,22 @@ class="link-seesrc" target="_blank">Source</a>
 
 The id of the next halfedge of the triangle for which halfedge with id <tt class="docutils literal"><span class="pre"><span class="Identifier">eid</span></span></tt> is a part.
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator/helpers.nim#L49"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator/helpers.nim#L100"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator/helpers.nim#L49" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator/helpers.nim#L100" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="normalDist,int,float,float,Rand">
+<dt><pre><span class="Keyword">proc</span> <a href="#normalDist%2Cint%2Cfloat%2Cfloat%2CRand"><span class="Identifier">normalDist</span></a><span class="Other">[</span><span class="Identifier">F</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">count</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">;</span> <span class="Identifier">mu</span> <span class="Other">=</span> <span class="FloatNumber">0.0</span><span class="Other">;</span> <span class="Identifier">sigma</span> <span class="Other">=</span> <span class="FloatNumber">1.0</span><span class="Other">;</span> <span class="Identifier">r</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">Rand</span> <span class="Other">=</span> <span class="Identifier">randState</span><span class="Other">(</span><span class="Other">)</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span>
+    <span class="Identifier">F</span><span class="Other">]</span></pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator/helpers.nim#L39"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator/helpers.nim#L39" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -281,9 +332,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 The point ids composing the triangle with id <tt class="docutils literal"><span class="pre"><span class="Identifier">tid</span></span></tt>.
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator/helpers.nim#L83"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator/helpers.nim#L134"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator/helpers.nim#L83" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator/helpers.nim#L134" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -293,9 +344,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 The centroid of points defining <tt class="docutils literal"><span class="pre"><span class="Identifier">polygon</span></span></tt>.
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator/helpers.nim#L124"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator/helpers.nim#L175"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator/helpers.nim#L124" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator/helpers.nim#L175" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -305,9 +356,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 The id of the previous halfedge of the triangle for which halfedge with id <tt class="docutils literal"><span class="pre"><span class="Identifier">eid</span></span></tt> is a part.
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator/helpers.nim#L57"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator/helpers.nim#L108"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator/helpers.nim#L57" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator/helpers.nim#L108" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -317,9 +368,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 The centroid of triangle with id <tt class="docutils literal"><span class="pre"><span class="Identifier">tid</span></span></tt>.
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator/helpers.nim#L112"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator/helpers.nim#L163"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator/helpers.nim#L112" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator/helpers.nim#L163" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -329,9 +380,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 The circumcenter of triangle with id <tt class="docutils literal"><span class="pre"><span class="Identifier">tid</span></span></tt>.
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator/helpers.nim#L143"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator/helpers.nim#L194"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator/helpers.nim#L143" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator/helpers.nim#L194" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -341,9 +392,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 The id of the triangle for which halfedge with id <tt class="docutils literal"><span class="pre"><span class="Identifier">eid</span></span></tt> is a part. (also the id of the 1st point?)
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator/helpers.nim#L44"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator/helpers.nim#L95"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator/helpers.nim#L44" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator/helpers.nim#L95" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -353,9 +404,21 @@ class="link-seesrc" target="_blank">Source</a>
 
 The triangle ids adjacent to triangle with id <tt class="docutils literal"><span class="pre"><span class="Identifier">tid</span></span></tt>. A seq of length 2 or 3.
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator/helpers.nim#L103"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator/helpers.nim#L154"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator/helpers.nim#L103" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator/helpers.nim#L154" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="uniformDist,int,F,F,Rand">
+<dt><pre><span class="Keyword">proc</span> <a href="#uniformDist%2Cint%2CF%2CF%2CRand"><span class="Identifier">uniformDist</span></a><span class="Other">[</span><span class="Identifier">F</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">count</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">;</span> <span class="Identifier">a</span><span class="Other">:</span> <span class="Identifier">F</span><span class="Other">;</span> <span class="Identifier">b</span><span class="Other">:</span> <span class="Identifier">F</span><span class="Other">;</span> <span class="Identifier">r</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">Rand</span> <span class="Other">=</span> <span class="Identifier">randState</span><span class="Other">(</span><span class="Other">)</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">F</span><span class="Other">]</span></pre></dt>
+<dd>
+
+
+&nbsp;&nbsp;<a
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator/helpers.nim#L44"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator/helpers.nim#L44" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -366,9 +429,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator/helpers.nim#L250"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator/helpers.nim#L301"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator/helpers.nim#L250" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator/helpers.nim#L301" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -384,9 +447,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Provides an iterator yielding values for each edge of the triangulation's hull. The values yielded are the hull id (index of the point in <tt class="docutils literal"><span class="pre"><span class="Identifier">d</span><span class="Operator">.</span><span class="Identifier">hull</span></span></tt> the edge starts at), the halfedge id, the point id from which the edge starts, the point id at which the edge ends, an array describing the point the edge starts at, and an array describing the point the edge ends at.
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator/helpers.nim#L288"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator/helpers.nim#L339"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator/helpers.nim#L288" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator/helpers.nim#L339" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -397,9 +460,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Provides an iterator yielding values for each point of the triangulation's hull. The values yielded are the hull id (index of the point in <tt class="docutils literal"><span class="pre"><span class="Identifier">d</span><span class="Operator">.</span><span class="Identifier">hull</span></span></tt>), the id of the point, and an array describing the point's location.
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator/helpers.nim#L277"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator/helpers.nim#L328"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator/helpers.nim#L277" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator/helpers.nim#L328" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -409,9 +472,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Provides an iterator yielding values for each point of the triangulation. The values yielded are the id of the point, and an array describing the point's location.
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator/helpers.nim#L267"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator/helpers.nim#L318"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator/helpers.nim#L267" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator/helpers.nim#L318" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -422,9 +485,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Provides an iterator yielding values for each edge of the triangulation. The values yielded are the id of the triangle, id of the halfedge chosen for the edge, id of starting and ending points, an array describing the point the edge starts at, and an array describing the point the edge ends at.
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator/helpers.nim#L65"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator/helpers.nim#L116"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator/helpers.nim#L65" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator/helpers.nim#L116" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -435,9 +498,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Provides an iterator yielding values for each triangle of the triangulation. The values yielded are the id of the triangle, the ids of the points comprising the triangle, and three arrays, each describing a point of the triangle.
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator/helpers.nim#L88"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator/helpers.nim#L139"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator/helpers.nim#L88" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator/helpers.nim#L139" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -448,9 +511,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Provides an iterator yielding values for each bisecting voronoi edge of the triangulation. For finite edges, the values yielded are the id of the halfedge chosen for the bisected edge, an array describing the circumcenter of the triangle for which that halfedge is a part, and an array describing the circumcenter of the adjacent triangle for which that halfedge's compliment is a part. For infinite edges, the id is of a halfedge on the hull. The first array describes the circumcenter of the triangle for which that halfedge is a part, and the second, the point projected by the halfedge origin's rightmost ray onto the delaunator object's defined bounds.
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator/helpers.nim#L167"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator/helpers.nim#L218"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator/helpers.nim#L167" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator/helpers.nim#L218" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -461,9 +524,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Provides an iterator yielding values for each region of the voronoi diagram. The values yielded are the id of the point to which the region belongs, and a seq of vertices describing the region's polygon. Infinite regions are clipped to the bounds as set on the delaunator object, defaulting to the minimum and maximum extents of the points provided. Clipped regions which are completely out of bounds are not yielded, wheras finite regions are always yielded whether in bounds or not, and are not clipped.
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator/helpers.nim#L211"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator/helpers.nim#L262"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator/helpers.nim#L211" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator/helpers.nim#L262" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -477,7 +540,7 @@ class="link-seesrc" target="_blank">Source</a>
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2023-06-10 18:46:15 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2023-06-13 03:55:48 UTC</small>
       </div>
     </div>
   </div>
