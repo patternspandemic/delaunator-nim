@@ -177,7 +177,7 @@ proc clipInfinite*[T](polygon: InfConvexPoly[T], xMin, yMin, xMax, yMax: T): seq
             inc i
       inc i
 
-  elif contains(polygon, [(xMin + xMax) / 2.0, (yMin + yMax) / 2.0]):
+  elif contains(polygon, [(xMin + xMax) / T(2.0), (yMin + yMax) / T(2.0)]):
     ply.insert(@[[xmin, ymin], [xmax, ymin], [xmax, ymax], [xmin, ymax]])
 
   return ply

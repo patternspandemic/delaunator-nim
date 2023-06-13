@@ -1,7 +1,7 @@
 # TODO: inline things
 #       iterators sans ids?
 
-import std/[math, sequtils, sets, sugar, options]
+import std/[math, options, sequtils, random, sets, sugar]
 
 import ../delaunator
 import clip
@@ -27,6 +27,7 @@ import clip
 - voronoiRegion
 
 etc...
+boundsCenter, hullCentroid
 point generators for uniform and normal distributions
 onion
 spanning tree
@@ -34,6 +35,56 @@ neighbor sites
 circles (largest circle fitting the tri/region centered at some center)
 nearest site
 ]#
+
+proc normalDist*[F](count: int, mu = 0.0; sigma = 1.0, r: var Rand = randState()): seq[F] =
+  result = collect(newSeqOfCap(count)):
+    for i in 1 .. count: F(gauss(r, mu, sigma))
+
+
+proc uniformDist*[F](count: int, a: F, b: F, r: var Rand = randState()): seq[F] =
+  result = collect(newSeqOfCap(count)):
+    for i in 1 .. count: rand[F](r, a .. b)
+
+
+proc grid*[F](
+  n, m: int; # n x m sites
+  fromN, toN, fromM, toM: F; # grid range
+  leftEdge, rightEdge, topEdge, bottomEdge: bool = true; # sites on edges?
+  jitterN, jitterM: F = 0.0; pinHull: bool = false; # jitter
+  r: var Rand = randState()
+): seq[F] =
+  let
+    count = n * m
+    nWidth = toN - fromN
+    mWidth = toM - fromM
+  var
+    nStepRatio = n - 1
+    mStepRatio = m - 1
+  if not leftEdge: nStepRatio += 1
+  if not rightEdge: nStepRatio += 1
+  if not topEdge: mStepRatio += 1
+  if not bottomEdge: mStepRatio += 1
+  let
+    nStep = nWidth / F(nStepRatio)
+    mStep = mWidth / F(mStepRatio)
+    nStart = fromN + (if not leftEdge: nStep else: F(0.0))
+    mStart = fromM + (if not topEdge: mStep else: F(0.0))
+  var coords = newSeqOfCap[F](count)
+  for i in 0 ..< n:
+    for j in 0 ..< m:
+      let
+        x = nStart + F(i) * nStep
+        y = mStart + F(j) * mStep
+        xJitter = jitterN * (rand[F](r, nStep) - F(0.5) * nStep)
+        yJitter = jitterM * (rand[F](r, mstep) - F(0.5) * mStep)
+        pin = if pinHull and ((i == 0 or i == n - 1) or (j == 0 or j == m - 1)): F(0.0)
+              else: F(1.0)
+      coords.add(x + xJitter * pin)
+      coords.add(y + yJitter * pin)
+  return coords
+
+
+# TODO: zipDists
 
 
 func halfedgeIdsOfTriangle*(tid: uint32): array[3, int32] =
