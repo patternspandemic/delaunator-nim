@@ -263,7 +263,7 @@ iterator iterVoronoiEdges*[T](d: Delaunator[T]): tuple[eid: int32; p, q: array[2
     let
       e = eids[i]
       p = d.triangles[e]
-      incomming = pointToLeftmostHalfedge(d, p)
+      incomming = siteToLeftmostHalfedge(d, p)
       edgeIds = edgeIdsAroundPoint(d, incomming)
       triangleIds = map(edgeIds, proc(h: int32): uint32 = triangleIdOfEdge(h))
       vertices = map(triangleIds, proc(t: uint32): array[2, T] = triangleCircumcenter(d, t))
@@ -293,7 +293,7 @@ iterator iterVoronoiRegions*[T](d: Delaunator[T]): tuple[pid: uint32, verts: seq
     if not seen.contains(p):
       seen.incl(p)
       let
-        incomming = pointToLeftmostHalfedge(d, p)
+        incomming = siteToLeftmostHalfedge(d, p)
         edgeIds = edgeIdsAroundPoint(d, incomming)
         triangleIds = map(edgeIds, proc(h: int32): uint32 = triangleIdOfEdge(h))
         vertices = map(triangleIds, proc(t: uint32): array[2, T] = triangleCircumcenter(d, t))
@@ -318,7 +318,7 @@ iterator iterVoronoiRegions*[T](d: Delaunator[T]): tuple[pid: uint32, verts: seq
 # TODO: doc that this will return empty verts when completely clipped out of bounds.
 proc voronoiRegion*[T](d: Delaunator[T], pid: uint32): tuple[pid: uint32, verts: seq[array[2, T]]] =
   let
-    incomming = pointToLeftmostHalfedge(d, pid)
+    incomming = siteToLeftmostHalfedge(d, pid)
     edgeIds = edgeIdsAroundPoint(d, incomming)
     triangleIds = map(edgeIds, proc(h: int32): uint32 = triangleIdOfEdge(h))
     vertices = map(triangleIds, proc(t: uint32): array[2, T] = triangleCircumcenter(d, t))

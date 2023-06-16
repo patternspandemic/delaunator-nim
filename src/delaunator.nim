@@ -1,4 +1,5 @@
 ## TODO: Lib doc, delaunator-nim is ...
+##       definitions, i.e. 'site', point, etc
 
 # Up to date with mapbox/Delaunator at 103acb4564a36ad2dff11dc0135a348f4e8fc149 May 27, 2032
 
@@ -19,13 +20,14 @@ var EDGE_STACK: array[512, uint32]
 
 type
   Delaunator*[T] = ref object
-    coords*: seq[T]
-    minX*, minY*, maxX*, maxY*: T # bounds of coords
-    triangles*: seq[uint32] # trimmed version of d_triangles
-    halfedges*: seq[int32]  # trimmed version of d_halfedges
-    hull*: seq[uint32]
-    vectors*: seq[T] # cell rays
-    bounds*: tuple[minX, minY, maxX, maxY: T] # clipping bounds for infinate voronoi regions
+    ## This object holds the datastructures neccessary to build and navigate the Delaunay-Voronoi dual graph.
+    coords*: seq[T]               ## Flattened sequence of site points.
+    minX*, minY*, maxX*, maxY*: T ## Extents of *coords*.
+    triangles*: seq[uint32]       ## Sequence of triplet indices into *coords* defining delaunay triangulation.
+    halfedges*: seq[int32]        ## Sequence of complement halfedges to that of the index.
+    hull*: seq[uint32]            ## Sequence of halfedge ids comprising the triangulation's hull.
+    vectors*: seq[T]              ## Sequence of pair rays emanating from infinite regions of hull sites.
+    bounds*: tuple[minX, minY, maxX, maxY: T] ## Clipping bounds for the infinate Voronoi regions.
 
     # Arrays that will store the triangulation graph
     trianglesLen: int32
@@ -50,23 +52,30 @@ type
 
 
 func boundWidth*[T](d: Delaunator[T]): T =
+  ## Width of defined *bounds*.
   return d.maxX - d.minX
 
 
 func boundHeight*[T](d: Delaunator[T]): T =
+  ## Height of defined *bounds*.
   return d.maxY - d.minY
 
 
-func hullNext*(d: Delaunator, id: uint32): uint32 =
-  d.d_hullNext[id]
+func hullNext*(d: Delaunator, sid: uint32): uint32 =
+  ## Returns the **id** of the next *site* of the hull following the site defined by `sid`.
+  d.d_hullNext[sid]
 
 
-func hullPrev*(d: Delaunator, id: uint32): uint32 =
-  d.d_hullPrev[id]
+func hullPrev*(d: Delaunator, sid: uint32): uint32 =
+  ## Returns the **id** of the previous *site* of the hull preceding the site defined by `sid`.
+  d.d_hullPrev[sid]
 
 
-func pointToLeftmostHalfedge*(d: Delaunator, pid: uint32): int32 =
-  return d.d_pointToLeftmostHalfedgeIndex[pid]
+func siteToLeftmostHalfedge*(d: Delaunator, sid: uint32): int32 =
+  ## Returns the **id** of the 'leftmost' incomming *halfedge* to the site defined by
+  ## `sid`. 'Leftmost' can be understood as if one were standing at the site's
+  ## position. Used for constructing Voronoi edges / regions.
+  return d.d_pointToLeftmostHalfedgeIndex[sid]
 
 
 proc swap(arr: var seq[uint32]; i, j: int) {.inline.} =
@@ -191,6 +200,9 @@ proc quicksort[F](ids: var seq[uint32]; dists: seq[F]; left, right: int) =
 
 
 proc update*[T](this: var Delaunator) =
+  ## Builds and rebuilds the dual-graph. This procedure should be called on a
+  ## *Delaunator* object after changing the object's `coords`.
+
   # Inner procs passed var 'this' param as 'uthis' due to the need to mutate it.
   # Simply closing over it results in 'cannot be captured / memory safety error'.
 
@@ -585,6 +597,9 @@ proc update*[T](this: var Delaunator) =
 
 
 proc fromCoords*[T](coordinates: var seq[T]): Delaunator[T] =
+  ## Returns a *Delaunator* object constructed from `coordinates`, a flattened
+  ## sequence of points representing site locations.
+
   # Could not figure out how to constrain T to SomeFloat, so using 'add' to test coordinates as
   # a seq[float32|float64]. Errors for example when coordinates is seq[int32].
   when not compiles(coordinates.add(float64(1.0))):
@@ -604,6 +619,11 @@ func defaultGetY[P, T](p: P): T =
 
 
 proc fromPoints*[P, T](points: seq[P]; getX: proc (p: P): T = defaultGetX; getY: proc (p: P): T = defaultGetY): Delaunator[T] =
+  ## Returns a *Delaunator* object constructed from `points`, a sequence of some
+  ## paired type which is automatically converted to a flattened sequence of
+  ## coordinates if points' elements can be referenced with the '[]' operator.
+  ## Otherwise one can specify `getX` and `getY` for extracting *x* and *y*
+  ## respectively.
   var
     coords = newSeq[T](points.len * 2)
   for i, point in points:
