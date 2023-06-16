@@ -123,11 +123,11 @@ window.addEventListener('DOMContentLoaded', main);
           </ul></dd>
 <dt><a name="hullNext" href="#hullNext"><span>hullNext:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="delaunator: hullNext(d: Delaunator; id: uint32): uint32" href="delaunator.html#hullNext%2CDelaunator%2Cuint32">delaunator: hullNext(d: Delaunator; id: uint32): uint32</a></li>
+          data-doc-search-tag="delaunator: hullNext(d: Delaunator; sid: uint32): uint32" href="delaunator.html#hullNext%2CDelaunator%2Cuint32">delaunator: hullNext(d: Delaunator; sid: uint32): uint32</a></li>
           </ul></dd>
 <dt><a name="hullPrev" href="#hullPrev"><span>hullPrev:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="delaunator: hullPrev(d: Delaunator; id: uint32): uint32" href="delaunator.html#hullPrev%2CDelaunator%2Cuint32">delaunator: hullPrev(d: Delaunator; id: uint32): uint32</a></li>
+          data-doc-search-tag="delaunator: hullPrev(d: Delaunator; sid: uint32): uint32" href="delaunator.html#hullPrev%2CDelaunator%2Cuint32">delaunator: hullPrev(d: Delaunator; sid: uint32): uint32</a></li>
           </ul></dd>
 <dt><a name="InfConvexPoly" href="#InfConvexPoly"><span>InfConvexPoly:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -189,10 +189,6 @@ window.addEventListener('DOMContentLoaded', main);
 <li><a class="reference external"
           data-doc-search-tag="helpers: pointIdsOfTriangle(d: Delaunator; tid: uint32): seq[uint32]" href="helpers.html#pointIdsOfTriangle%2CDelaunator%2Cuint32">helpers: pointIdsOfTriangle(d: Delaunator; tid: uint32): seq[uint32]</a></li>
           </ul></dd>
-<dt><a name="pointToLeftmostHalfedge" href="#pointToLeftmostHalfedge"><span>pointToLeftmostHalfedge:</span></a></dt><dd><ul class="simple">
-<li><a class="reference external"
-          data-doc-search-tag="delaunator: pointToLeftmostHalfedge(d: Delaunator; pid: uint32): int32" href="delaunator.html#pointToLeftmostHalfedge%2CDelaunator%2Cuint32">delaunator: pointToLeftmostHalfedge(d: Delaunator; pid: uint32): int32</a></li>
-          </ul></dd>
 <dt><a name="polygonCentroid" href="#polygonCentroid"><span>polygonCentroid:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="helpers: polygonCentroid[T](polygon: seq[array[2, T]]): array[2, T]" href="helpers.html#polygonCentroid%2Cseq%5Barray%5B%2CT%5D%5D">helpers: polygonCentroid[T](polygon: seq[array[2, T]]): array[2, T]</a></li>
@@ -204,6 +200,10 @@ window.addEventListener('DOMContentLoaded', main);
 <dt><a name="project" href="#project"><span>project:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="clip: project[T](p, v: array[2, T]; xMin, yMin, xMax, yMax: T): Option[array[2, T]]" href="clip.html#project%2Carray%5B%2CT%5D%2Carray%5B%2CT%5D%2CT%2CT%2CT%2CT">clip: project[T](p, v: array[2, T]; xMin, yMin, xMax, yMax: T): Option[array[2, T]]</a></li>
+          </ul></dd>
+<dt><a name="siteToLeftmostHalfedge" href="#siteToLeftmostHalfedge"><span>siteToLeftmostHalfedge:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="delaunator: siteToLeftmostHalfedge(d: Delaunator; sid: uint32): int32" href="delaunator.html#siteToLeftmostHalfedge%2CDelaunator%2Cuint32">delaunator: siteToLeftmostHalfedge(d: Delaunator; sid: uint32): int32</a></li>
           </ul></dd>
 <dt><a name="triangleCentroid" href="#triangleCentroid"><span>triangleCentroid:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -248,7 +248,7 @@ window.addEventListener('DOMContentLoaded', main);
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2023-06-13 22:56:53 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2023-06-16 23:21:11 UTC</small>
       </div>
     </div>
   </div>

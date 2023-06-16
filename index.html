@@ -109,13 +109,13 @@ window.addEventListener('DOMContentLoaded', main);
   <ul class="simple simple-toc-section">
       <li><a class="reference" href="#Delaunator"
     title="Delaunator[T] = ref object
-  coords*: seq[T]
-  minX*, minY*, maxX*, maxY*: T
-  triangles*: seq[uint32]
-  halfedges*: seq[int32]
-  hull*: seq[uint32]
-  vectors*: seq[T]
-  bounds*: tuple[minX, minY, maxX, maxY: T]
+  coords*: seq[T]            ## Flattened sequence of site points.
+  minX*, minY*, maxX*, maxY*: T ## Extents of *coords*.
+  triangles*: seq[uint32]    ## Sequence of triplet indices into *coords* defining delaunay triangulation.
+  halfedges*: seq[int32]     ## Sequence of complement halfedges to that of the index.
+  hull*: seq[uint32]         ## Sequence of halfedge ids comprising the triangulation's hull.
+  vectors*: seq[T]           ## Sequence of pair rays emanating from infinite regions of hull sites.
+  bounds*: tuple[minX, minY, maxX, maxY: T] ## Clipping bounds for the infinate Voronoi regions.
   trianglesLen: int32
   d_triangles: seq[uint32]
   d_halfedges: seq[int32]
@@ -163,17 +163,17 @@ window.addEventListener('DOMContentLoaded', main);
   </ul>
   <ul class="simple nested-toc-section">hullNext
       <li><a class="reference" href="#hullNext%2CDelaunator%2Cuint32"
-    title="hullNext(d: Delaunator; id: uint32): uint32">hullNext(d: Delaunator; id: uint32): uint32</a></li>
+    title="hullNext(d: Delaunator; sid: uint32): uint32">hullNext(d: Delaunator; sid: uint32): uint32</a></li>
 
   </ul>
   <ul class="simple nested-toc-section">hullPrev
       <li><a class="reference" href="#hullPrev%2CDelaunator%2Cuint32"
-    title="hullPrev(d: Delaunator; id: uint32): uint32">hullPrev(d: Delaunator; id: uint32): uint32</a></li>
+    title="hullPrev(d: Delaunator; sid: uint32): uint32">hullPrev(d: Delaunator; sid: uint32): uint32</a></li>
 
   </ul>
-  <ul class="simple nested-toc-section">pointToLeftmostHalfedge
-      <li><a class="reference" href="#pointToLeftmostHalfedge%2CDelaunator%2Cuint32"
-    title="pointToLeftmostHalfedge(d: Delaunator; pid: uint32): int32">pointToLeftmostHalfedge(d: Delaunator; pid: uint32): int32</a></li>
+  <ul class="simple nested-toc-section">siteToLeftmostHalfedge
+      <li><a class="reference" href="#siteToLeftmostHalfedge%2CDelaunator%2Cuint32"
+    title="siteToLeftmostHalfedge(d: Delaunator; sid: uint32): int32">siteToLeftmostHalfedge(d: Delaunator; sid: uint32): int32</a></li>
 
   </ul>
   <ul class="simple nested-toc-section">update
@@ -196,7 +196,10 @@ class="link-seesrc" target="_blank">Source</a>
   <div class="nine columns" id="content">
   <div id="tocRoot"></div>
   
-  <p class="module-desc">TODO: Lib doc, delaunator-nim is ...</p>
+  <p class="module-desc"><dl class="docutils"><dt>TODO: Lib doc, delaunator-nim is ...</dt>
+<dd>definitions, i.e. 'site', point, etc</dd>
+</dl>
+</p>
   <div class="section" id="6">
 <h1><a class="toc-backref" href="#6">Imports</a></h1>
 <dl class="item">
@@ -207,13 +210,13 @@ class="link-seesrc" target="_blank">Source</a>
 <dl class="item">
 <div id="Delaunator">
 <dt><pre><a href="delaunator.html#Delaunator"><span class="Identifier">Delaunator</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span> <span class="Other">=</span> <span class="Keyword">ref</span> <span class="Keyword">object</span>
-  <span class="Identifier">coords</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span>
-  <span class="Identifier">minX</span><span class="Operator">*</span><span class="Other">,</span> <span class="Identifier">minY</span><span class="Operator">*</span><span class="Other">,</span> <span class="Identifier">maxX</span><span class="Operator">*</span><span class="Other">,</span> <span class="Identifier">maxY</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">T</span>
-  <span class="Identifier">triangles</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">uint32</span><span class="Other">]</span>
-  <span class="Identifier">halfedges</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">int32</span><span class="Other">]</span>
-  <span class="Identifier">hull</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">uint32</span><span class="Other">]</span>
-  <span class="Identifier">vectors</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span>
-  <span class="Identifier">bounds</span><span class="Operator">*</span><span class="Other">:</span> <span class="Keyword">tuple</span><span class="Other">[</span><span class="Identifier">minX</span><span class="Other">,</span> <span class="Identifier">minY</span><span class="Other">,</span> <span class="Identifier">maxX</span><span class="Other">,</span> <span class="Identifier">maxY</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">]</span>
+  <span class="Identifier">coords</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span>            <span class="Comment">## Flattened sequence of site points.</span>
+  <span class="Identifier">minX</span><span class="Operator">*</span><span class="Other">,</span> <span class="Identifier">minY</span><span class="Operator">*</span><span class="Other">,</span> <span class="Identifier">maxX</span><span class="Operator">*</span><span class="Other">,</span> <span class="Identifier">maxY</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">T</span> <span class="Comment">## Extents of *coords*.</span>
+  <span class="Identifier">triangles</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">uint32</span><span class="Other">]</span>    <span class="Comment">## Sequence of triplet indices into *coords* defining delaunay triangulation.</span>
+  <span class="Identifier">halfedges</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">int32</span><span class="Other">]</span>     <span class="Comment">## Sequence of complement halfedges to that of the index.</span>
+  <span class="Identifier">hull</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">uint32</span><span class="Other">]</span>         <span class="Comment">## Sequence of halfedge ids comprising the triangulation's hull.</span>
+  <span class="Identifier">vectors</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span>           <span class="Comment">## Sequence of pair rays emanating from infinite regions of hull sites.</span>
+  <span class="Identifier">bounds</span><span class="Operator">*</span><span class="Other">:</span> <span class="Keyword">tuple</span><span class="Other">[</span><span class="Identifier">minX</span><span class="Other">,</span> <span class="Identifier">minY</span><span class="Other">,</span> <span class="Identifier">maxX</span><span class="Other">,</span> <span class="Identifier">maxY</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">]</span> <span class="Comment">## Clipping bounds for the infinate Voronoi regions.</span>
   <span class="Identifier">trianglesLen</span><span class="Other">:</span> <span class="Identifier">int32</span>
   <span class="Identifier">d_triangles</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">uint32</span><span class="Other">]</span>
   <span class="Identifier">d_halfedges</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">int32</span><span class="Other">]</span>
@@ -229,11 +232,11 @@ class="link-seesrc" target="_blank">Source</a>
 </pre></dt>
 <dd>
 
-
+This object holds the datastructures neccessary to build and navigate the Delaunay-Voronoi dual graph.
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L21"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L22"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L21" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L22" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -246,11 +249,11 @@ class="link-seesrc" target="_blank">Source</a>
 <dt><pre><span class="Keyword">func</span> <a href="#boundHeight%2CDelaunator%5BT%5D"><span class="Identifier">boundHeight</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">d</span><span class="Other">:</span> <a href="delaunator.html#Delaunator"><span class="Identifier">Delaunator</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span></pre></dt>
 <dd>
 
-
+Height of defined <em>bounds</em>.
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L56"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L59"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L56" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L59" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -258,11 +261,11 @@ class="link-seesrc" target="_blank">Source</a>
 <dt><pre><span class="Keyword">func</span> <a href="#boundWidth%2CDelaunator%5BT%5D"><span class="Identifier">boundWidth</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">d</span><span class="Other">:</span> <a href="delaunator.html#Delaunator"><span class="Identifier">Delaunator</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span></pre></dt>
 <dd>
 
-
+Width of defined <em>bounds</em>.
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L52"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L54"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L52" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L54" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -272,9 +275,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L130"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L139"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L130" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L139" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -282,11 +285,11 @@ class="link-seesrc" target="_blank">Source</a>
 <dt><pre><span class="Keyword">proc</span> <a href="#fromCoords%2Cseq%5BT%5D"><span class="Identifier">fromCoords</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">coordinates</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="delaunator.html#Delaunator"><span class="Identifier">Delaunator</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
 <dd>
 
-
+Returns a <em>Delaunator</em> object constructed from <tt class="docutils literal"><span class="pre"><span class="Identifier">coordinates</span></span></tt>, a flattened sequence of points representing site locations.
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L587"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L599"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L587" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L599" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -295,31 +298,19 @@ class="link-seesrc" target="_blank">Source</a>
                       <span class="Identifier">getY</span><span class="Other">:</span> <span class="Keyword">proc</span> <span class="Other">(</span><span class="Identifier">p</span><span class="Other">:</span> <span class="Identifier">P</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span> <span class="Other">=</span> <span class="Identifier">defaultGetY</span><span class="Other">)</span><span class="Other">:</span> <a href="delaunator.html#Delaunator"><span class="Identifier">Delaunator</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
 <dd>
 
-
+Returns a <em>Delaunator</em> object constructed from <tt class="docutils literal"><span class="pre"><span class="Identifier">points</span></span></tt>, a sequence of some paired type which is automatically converted to a flattened sequence of coordinates if points' elements can be referenced with the '[]' operator. Otherwise one can specify <tt class="docutils literal"><span class="pre"><span class="Identifier">getX</span></span></tt> and <tt class="docutils literal"><span class="pre"><span class="Identifier">getY</span></span></tt> for extracting <em>x</em> and <em>y</em> respectively.
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L606"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L621"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L606" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L621" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
 <div id="hullNext,Delaunator,uint32">
-<dt><pre><span class="Keyword">func</span> <a href="#hullNext%2CDelaunator%2Cuint32"><span class="Identifier">hullNext</span></a><span class="Other">(</span><span class="Identifier">d</span><span class="Other">:</span> <a href="delaunator.html#Delaunator"><span class="Identifier">Delaunator</span></a><span class="Other">;</span> <span class="Identifier">id</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">uint32</span></pre></dt>
+<dt><pre><span class="Keyword">func</span> <a href="#hullNext%2CDelaunator%2Cuint32"><span class="Identifier">hullNext</span></a><span class="Other">(</span><span class="Identifier">d</span><span class="Other">:</span> <a href="delaunator.html#Delaunator"><span class="Identifier">Delaunator</span></a><span class="Other">;</span> <span class="Identifier">sid</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">uint32</span></pre></dt>
 <dd>
 
-
-&nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L60"
-class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L60" class="link-seesrc" target="_blank" >Edit</a>
-
-</dd>
-</div>
-<div id="hullPrev,Delaunator,uint32">
-<dt><pre><span class="Keyword">func</span> <a href="#hullPrev%2CDelaunator%2Cuint32"><span class="Identifier">hullPrev</span></a><span class="Other">(</span><span class="Identifier">d</span><span class="Other">:</span> <a href="delaunator.html#Delaunator"><span class="Identifier">Delaunator</span></a><span class="Other">;</span> <span class="Identifier">id</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">uint32</span></pre></dt>
-<dd>
-
-
+Returns the <strong>id</strong> of the next <em>site</em> of the hull following the site defined by <tt class="docutils literal"><span class="pre"><span class="Identifier">sid</span></span></tt>.
 &nbsp;&nbsp;<a
 href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L64"
 class="link-seesrc" target="_blank">Source</a>
@@ -327,15 +318,27 @@ class="link-seesrc" target="_blank">Source</a>
 
 </dd>
 </div>
-<div id="pointToLeftmostHalfedge,Delaunator,uint32">
-<dt><pre><span class="Keyword">func</span> <a href="#pointToLeftmostHalfedge%2CDelaunator%2Cuint32"><span class="Identifier">pointToLeftmostHalfedge</span></a><span class="Other">(</span><span class="Identifier">d</span><span class="Other">:</span> <a href="delaunator.html#Delaunator"><span class="Identifier">Delaunator</span></a><span class="Other">;</span> <span class="Identifier">pid</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">int32</span></pre></dt>
+<div id="hullPrev,Delaunator,uint32">
+<dt><pre><span class="Keyword">func</span> <a href="#hullPrev%2CDelaunator%2Cuint32"><span class="Identifier">hullPrev</span></a><span class="Other">(</span><span class="Identifier">d</span><span class="Other">:</span> <a href="delaunator.html#Delaunator"><span class="Identifier">Delaunator</span></a><span class="Other">;</span> <span class="Identifier">sid</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">uint32</span></pre></dt>
 <dd>
 
-
+Returns the <strong>id</strong> of the previous <em>site</em> of the hull preceding the site defined by <tt class="docutils literal"><span class="pre"><span class="Identifier">sid</span></span></tt>.
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L68"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L69"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L68" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L69" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="siteToLeftmostHalfedge,Delaunator,uint32">
+<dt><pre><span class="Keyword">func</span> <a href="#siteToLeftmostHalfedge%2CDelaunator%2Cuint32"><span class="Identifier">siteToLeftmostHalfedge</span></a><span class="Other">(</span><span class="Identifier">d</span><span class="Other">:</span> <a href="delaunator.html#Delaunator"><span class="Identifier">Delaunator</span></a><span class="Other">;</span> <span class="Identifier">sid</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">int32</span></pre></dt>
+<dd>
+
+Returns the <strong>id</strong> of the 'leftmost' incomming <em>halfedge</em> to the site defined by <tt class="docutils literal"><span class="pre"><span class="Identifier">sid</span></span></tt>. 'Leftmost' can be understood as if one were standing at the site's position. Used for constructing Voronoi edges / regions.
+&nbsp;&nbsp;<a
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L74"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L74" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -343,11 +346,11 @@ class="link-seesrc" target="_blank">Source</a>
 <dt><pre><span class="Keyword">proc</span> <a href="#update%2CDelaunator"><span class="Identifier">update</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">this</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="delaunator.html#Delaunator"><span class="Identifier">Delaunator</span></a><span class="Other">)</span></pre></dt>
 <dd>
 
-
+Builds and rebuilds the dual-graph. This procedure should be called on a <em>Delaunator</em> object after changing the object's <tt class="docutils literal"><span class="pre"><span class="Identifier">coords</span></span></tt>.
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L193"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L202"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L193" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L202" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -361,7 +364,7 @@ class="link-seesrc" target="_blank">Source</a>
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2023-06-13 22:56:53 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2023-06-16 23:21:11 UTC</small>
       </div>
     </div>
   </div>

@@ -1,9 +1,9 @@
 Delaunator	delaunator.html#Delaunator	delaunator: Delaunator	
 boundWidth	delaunator.html#boundWidth,Delaunator[T]	delaunator: boundWidth[T](d: Delaunator[T]): T	
 boundHeight	delaunator.html#boundHeight,Delaunator[T]	delaunator: boundHeight[T](d: Delaunator[T]): T	
-hullNext	delaunator.html#hullNext,Delaunator,uint32	delaunator: hullNext(d: Delaunator; id: uint32): uint32	
-hullPrev	delaunator.html#hullPrev,Delaunator,uint32	delaunator: hullPrev(d: Delaunator; id: uint32): uint32	
-pointToLeftmostHalfedge	delaunator.html#pointToLeftmostHalfedge,Delaunator,uint32	delaunator: pointToLeftmostHalfedge(d: Delaunator; pid: uint32): int32	
+hullNext	delaunator.html#hullNext,Delaunator,uint32	delaunator: hullNext(d: Delaunator; sid: uint32): uint32	
+hullPrev	delaunator.html#hullPrev,Delaunator,uint32	delaunator: hullPrev(d: Delaunator; sid: uint32): uint32	
+siteToLeftmostHalfedge	delaunator.html#siteToLeftmostHalfedge,Delaunator,uint32	delaunator: siteToLeftmostHalfedge(d: Delaunator; sid: uint32): int32	
 circumcenter	delaunator.html#circumcenter,F,F,F,F,F,F	delaunator: circumcenter[F](ax, ay, bx, by, cx, cy: F): tuple[x, y: F]	
 update	delaunator.html#update,Delaunator	delaunator: update[T](this: var Delaunator)	
 fromCoords	delaunator.html#fromCoords,seq[T]	delaunator: fromCoords[T](coordinates: var seq[T]): Delaunator[T]	
