@@ -1,5 +1,77 @@
-## TODO: Lib doc, delaunator-nim is ...
-##       definitions, i.e. 'site', point, etc
+## `Delaunator-Nim <https://github.com/patternspandemic/delaunator-nim>`_ is a
+## port of `Mapbox/Delaunator <https://github.com/mapbox/delaunator>`_, a fast
+## library for 2D Delaunay triangulation. In addition, this port includes a set
+## of `helpers <helpers.html>`_ for utilizing the structures of a Delaunator object, as well as
+## clipping of infinite regions of the Voronoi diagram.
+##
+## A Delaunator object is constructed from a set of points (aka 'sites'), and
+## contains two key compact sequences of integers, *triangles* and *halfedges*.
+## This representation of the triangulation, while less convenient, is what
+## makes the library fast.
+##
+## Delaunator construction can originate from a flat seq of coordinates,
+
+runnableExamples:
+  var
+    # A flat seq of `float64` coordinates
+    coords = @[63.59410858154297, 198.1050262451172, 215.7989349365234, 171.0301208496094,
+               33.8256950378418,  261.359130859375, 40.81229019165039, 61.88509368896484,
+               189.6730651855469, 168.2080078125, 247.6787414550781, 222.6421508789062,
+               265.9251403808594, 81.62255096435547, 21.60958862304688, 253.6200256347656,
+               24.65586090087891, 67.60309600830078, 27.14787483215332, 113.4554977416992]
+    # Construct
+    d = delaunator.fromCoords[float64](coords)
+
+  # Triplets of site ids.
+  echo d.triangles
+
+## **Output:**
+##
+## .. code-block:: nim
+##   @[4, 5, 1, 4, 0, 5, 5, 6, 1, 1, 6, 4, 4, 9, 0, 0, 2, 5, 0, 7, 2, 3, 9, 4, 0, 9, 7, 6, 3, 4, 3, 8, 9, 9, 8, 7]
+##
+## or from some pairwise sequence, with conversion to a float type,
+
+runnableExamples:
+  var
+    # A pairwise seq of `int` points
+    points = @[
+      [63, 198], [215, 171], [33,  261], [40, 61], [189, 168],
+      [247, 222], [265, 81], [21, 253], [24, 67], [27, 113]
+    ]
+    # Construct into a `float32` coordinates
+    d = delaunator.fromPoints[array[2, int], float32](points)
+
+  # Halfedges of triangulation.
+  echo d.halfedges
+
+## **Output:**
+##
+## .. code-block:: nim
+##   @[5, 8, 11, 14, 17, 0, -1, 9, 1, 7, 29, 2, 22, 24, 3, 20, -1, 4, 26, -1, 15, 32, 12, 28, 13, 35, 18, -1, 23, 10, -1, 33, 21, 31, -1, 25]
+##
+## Both fields, *triangles* and *halfedges* are sequences indexed by **halfedge**
+## id. Importantly, notice that some halfedges index to '-1'. These halfedges have
+## no opposite because they reside on the triangulation's hull. To quote Mapbox's
+## guide to `Delaunator's data structures <https://mapbox.github.io/delaunator/>`_:
+##
+##   A triangle edge may be shared with another triangle. Instead of thinking
+##   about each edge A ↔︎ B, we will use two half-edges A → B and B → A. Having
+##   two half-edges is the key to everything this library provides.
+##
+##   Half-edges e are the indices into both of delaunator’s outputs:
+##   * delaunay.triangles[e] returns the point id where the half-edge starts
+##   * delaunay.halfedges[e] returns the opposite half-edge in the adjacent triangle, or -1 if there is no adjacent triangle
+##
+##   Triangle ids and half-edge ids are related.
+##   * The half-edges of triangle t are 3 * t, 3 * t + 1, and 3 * t + 2.
+##   * The triangle of half-edge id e is floor(e/3).
+##
+## The above linked guide is still very applicable to this port, and the helpers
+## described therein, along with many more, are implemented in `delaunator/helpers <helpers.html>`_
+
+# TODO: Lib doc, delaunator-nim is ...
+#       definitions, i.e. 'site', point, etc
 
 # Up to date with mapbox/Delaunator at 103acb4564a36ad2dff11dc0135a348f4e8fc149 May 27, 2032
 
@@ -20,7 +92,8 @@ var EDGE_STACK: array[512, uint32]
 
 type
   Delaunator*[T] = ref object
-    ## This object holds the datastructures neccessary to build and navigate the Delaunay-Voronoi dual graph.
+    ## This object holds the datastructures neccessary to build and navigate the
+    ## Delaunay-Voronoi dual graph.
     coords*: seq[T]               ## Flattened sequence of site points.
     minX*, minY*, maxX*, maxY*: T ## Extents of *coords*.
     triangles*: seq[uint32]       ## Sequence of triplet indices into *coords* defining delaunay triangulation.
