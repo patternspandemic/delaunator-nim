@@ -154,11 +154,14 @@ window.addEventListener('DOMContentLoaded', main);
     title="fromCoords[T](coordinates: var seq[T]): Delaunator[T]">fromCoords[T](coordinates: var seq[T]): Delaunator[T]</a></li>
 
   </ul>
+  <ul class="simple nested-toc-section">fromCustom
+      <li><a class="reference" href="#fromCustom%2Cseq%5BP%5D%2Cproc%28P%29%2Cproc%28P%29"
+    title="fromCustom[P, T](points: seq[P]; getX, getY: proc (p: P): T): Delaunator[T]">fromCustom[P, T](points: seq[P]; getX, getY: proc (p: P): T): Delaunator[T]</a></li>
+
+  </ul>
   <ul class="simple nested-toc-section">fromPoints
-      <li><a class="reference" href="#fromPoints%2Cseq%5BP%5D%2Cproc%28P%29%2Cproc%28P%29"
-    title="fromPoints[P, T](points: seq[P]; getX: proc (p: P): T = defaultGetX;
-                 getY: proc (p: P): T = defaultGetY): Delaunator[T]">fromPoints[P, T](points: seq[P]; getX: proc (p: P): T = defaultGetX;
-                 getY: proc (p: P): T = defaultGetY): Delaunator[T]</a></li>
+      <li><a class="reference" href="#fromPoints%2Cseq%5BP%5D"
+    title="fromPoints[P, T](points: seq[P]): Delaunator[T]">fromPoints[P, T](points: seq[P]): Delaunator[T]</a></li>
 
   </ul>
   <ul class="simple nested-toc-section">hullNext
@@ -223,11 +226,12 @@ class="link-seesrc" target="_blank">Source</a>
     <span class="Punctuation">[</span><span class="DecNumber">63</span><span class="Punctuation">,</span> <span class="DecNumber">198</span><span class="Punctuation">]</span><span class="Punctuation">,</span> <span class="Punctuation">[</span><span class="DecNumber">215</span><span class="Punctuation">,</span> <span class="DecNumber">171</span><span class="Punctuation">]</span><span class="Punctuation">,</span> <span class="Punctuation">[</span><span class="DecNumber">33</span><span class="Punctuation">,</span>  <span class="DecNumber">261</span><span class="Punctuation">]</span><span class="Punctuation">,</span> <span class="Punctuation">[</span><span class="DecNumber">40</span><span class="Punctuation">,</span> <span class="DecNumber">61</span><span class="Punctuation">]</span><span class="Punctuation">,</span> <span class="Punctuation">[</span><span class="DecNumber">189</span><span class="Punctuation">,</span> <span class="DecNumber">168</span><span class="Punctuation">]</span><span class="Punctuation">,</span>
     <span class="Punctuation">[</span><span class="DecNumber">247</span><span class="Punctuation">,</span> <span class="DecNumber">222</span><span class="Punctuation">]</span><span class="Punctuation">,</span> <span class="Punctuation">[</span><span class="DecNumber">265</span><span class="Punctuation">,</span> <span class="DecNumber">81</span><span class="Punctuation">]</span><span class="Punctuation">,</span> <span class="Punctuation">[</span><span class="DecNumber">21</span><span class="Punctuation">,</span> <span class="DecNumber">253</span><span class="Punctuation">]</span><span class="Punctuation">,</span> <span class="Punctuation">[</span><span class="DecNumber">24</span><span class="Punctuation">,</span> <span class="DecNumber">67</span><span class="Punctuation">]</span><span class="Punctuation">,</span> <span class="Punctuation">[</span><span class="DecNumber">27</span><span class="Punctuation">,</span> <span class="DecNumber">113</span><span class="Punctuation">]</span>
   <span class="Punctuation">]</span>
-  <span class="Comment"># Construct into a `float32` coordinates</span>
+  <span class="Comment"># Construct into `float32` coordinates</span>
   <span class="Identifier">d</span> <span class="Operator">=</span> <span class="Identifier">delaunator</span><span class="Operator">.</span><span class="Identifier">fromPoints</span><span class="Punctuation">[</span><span class="Identifier">array</span><span class="Punctuation">[</span><span class="DecNumber">2</span><span class="Punctuation">,</span> <span class="Identifier">int</span><span class="Punctuation">]</span><span class="Punctuation">,</span> <span class="Identifier">float32</span><span class="Punctuation">]</span><span class="Punctuation">(</span><span class="Identifier">points</span><span class="Punctuation">)</span>
 
 <span class="Comment"># Halfedges of triangulation.</span>
-<span class="Identifier">echo</span> <span class="Identifier">d</span><span class="Operator">.</span><span class="Identifier">halfedges</span></pre><strong>Output:</strong><pre class="listing"><span class="Operator">@</span><span class="Punctuation">[</span><span class="DecNumber">5</span><span class="Punctuation">,</span> <span class="DecNumber">8</span><span class="Punctuation">,</span> <span class="DecNumber">11</span><span class="Punctuation">,</span> <span class="DecNumber">14</span><span class="Punctuation">,</span> <span class="DecNumber">17</span><span class="Punctuation">,</span> <span class="DecNumber">0</span><span class="Punctuation">,</span> <span class="Operator">-</span><span class="DecNumber">1</span><span class="Punctuation">,</span> <span class="DecNumber">9</span><span class="Punctuation">,</span> <span class="DecNumber">1</span><span class="Punctuation">,</span> <span class="DecNumber">7</span><span class="Punctuation">,</span> <span class="DecNumber">29</span><span class="Punctuation">,</span> <span class="DecNumber">2</span><span class="Punctuation">,</span> <span class="DecNumber">22</span><span class="Punctuation">,</span> <span class="DecNumber">24</span><span class="Punctuation">,</span> <span class="DecNumber">3</span><span class="Punctuation">,</span> <span class="DecNumber">20</span><span class="Punctuation">,</span> <span class="Operator">-</span><span class="DecNumber">1</span><span class="Punctuation">,</span> <span class="DecNumber">4</span><span class="Punctuation">,</span> <span class="DecNumber">26</span><span class="Punctuation">,</span> <span class="Operator">-</span><span class="DecNumber">1</span><span class="Punctuation">,</span> <span class="DecNumber">15</span><span class="Punctuation">,</span> <span class="DecNumber">32</span><span class="Punctuation">,</span> <span class="DecNumber">12</span><span class="Punctuation">,</span> <span class="DecNumber">28</span><span class="Punctuation">,</span> <span class="DecNumber">13</span><span class="Punctuation">,</span> <span class="DecNumber">35</span><span class="Punctuation">,</span> <span class="DecNumber">18</span><span class="Punctuation">,</span> <span class="Operator">-</span><span class="DecNumber">1</span><span class="Punctuation">,</span> <span class="DecNumber">23</span><span class="Punctuation">,</span> <span class="DecNumber">10</span><span class="Punctuation">,</span> <span class="Operator">-</span><span class="DecNumber">1</span><span class="Punctuation">,</span> <span class="DecNumber">33</span><span class="Punctuation">,</span> <span class="DecNumber">21</span><span class="Punctuation">,</span> <span class="DecNumber">31</span><span class="Punctuation">,</span> <span class="Operator">-</span><span class="DecNumber">1</span><span class="Punctuation">,</span> <span class="DecNumber">25</span><span class="Punctuation">]</span></pre><p>Both fields, <em>triangles</em> and <em>halfedges</em> are sequences indexed by <strong>halfedge</strong> id. Importantly, notice that some halfedges index to '-1'. These halfedges have no opposite because they reside on the triangulation's hull. To quote Mapbox's guide to <a class="reference external" href="https://mapbox.github.io/delaunator/">Delaunator's data structures</a>:</p>
+<span class="Identifier">echo</span> <span class="Identifier">d</span><span class="Operator">.</span><span class="Identifier">halfedges</span></pre><strong>Output:</strong><pre class="listing"><span class="Operator">@</span><span class="Punctuation">[</span><span class="DecNumber">5</span><span class="Punctuation">,</span> <span class="DecNumber">8</span><span class="Punctuation">,</span> <span class="DecNumber">11</span><span class="Punctuation">,</span> <span class="DecNumber">14</span><span class="Punctuation">,</span> <span class="DecNumber">17</span><span class="Punctuation">,</span> <span class="DecNumber">0</span><span class="Punctuation">,</span> <span class="Operator">-</span><span class="DecNumber">1</span><span class="Punctuation">,</span> <span class="DecNumber">9</span><span class="Punctuation">,</span> <span class="DecNumber">1</span><span class="Punctuation">,</span> <span class="DecNumber">7</span><span class="Punctuation">,</span> <span class="DecNumber">29</span><span class="Punctuation">,</span> <span class="DecNumber">2</span><span class="Punctuation">,</span> <span class="DecNumber">22</span><span class="Punctuation">,</span> <span class="DecNumber">24</span><span class="Punctuation">,</span> <span class="DecNumber">3</span><span class="Punctuation">,</span> <span class="DecNumber">20</span><span class="Punctuation">,</span> <span class="Operator">-</span><span class="DecNumber">1</span><span class="Punctuation">,</span> <span class="DecNumber">4</span><span class="Punctuation">,</span> <span class="DecNumber">26</span><span class="Punctuation">,</span> <span class="Operator">-</span><span class="DecNumber">1</span><span class="Punctuation">,</span> <span class="DecNumber">15</span><span class="Punctuation">,</span> <span class="DecNumber">32</span><span class="Punctuation">,</span> <span class="DecNumber">12</span><span class="Punctuation">,</span> <span class="DecNumber">28</span><span class="Punctuation">,</span> <span class="DecNumber">13</span><span class="Punctuation">,</span> <span class="DecNumber">35</span><span class="Punctuation">,</span> <span class="DecNumber">18</span><span class="Punctuation">,</span> <span class="Operator">-</span><span class="DecNumber">1</span><span class="Punctuation">,</span> <span class="DecNumber">23</span><span class="Punctuation">,</span> <span class="DecNumber">10</span><span class="Punctuation">,</span> <span class="Operator">-</span><span class="DecNumber">1</span><span class="Punctuation">,</span> <span class="DecNumber">33</span><span class="Punctuation">,</span> <span class="DecNumber">21</span><span class="Punctuation">,</span> <span class="DecNumber">31</span><span class="Punctuation">,</span> <span class="Operator">-</span><span class="DecNumber">1</span><span class="Punctuation">,</span> <span class="DecNumber">25</span><span class="Punctuation">]</span></pre><p>Construction from custom types is aided by <tt class="docutils literal"><span class="pre"><span class="Identifier">fromCustom</span></span></tt>.</p>
+<p>Both fields, <em>triangles</em> and <em>halfedges</em> are sequences indexed by <strong>halfedge</strong> id. Importantly, notice that some halfedges index to '-1'. These halfedges have no opposite because they reside on the triangulation's hull. To quote Mapbox's guide to <a class="reference external" href="https://mapbox.github.io/delaunator/">Delaunator's data structures</a>:</p>
 <blockquote><p><p>A triangle edge may be shared with another triangle. Instead of thinking about each edge A ↔︎ B, we will use two half-edges A → B and B → A. Having two half-edges is the key to everything this library provides.</p>
 <p>Half-edges e are the indices into both of delaunator’s outputs:</p>
 <ul class="simple"><li>delaunay.triangles[e] returns the point id where the half-edge starts</li>
@@ -274,9 +278,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 This object holds the datastructures neccessary to build and navigate the Delaunay-Voronoi dual graph.
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L94"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L96"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L94" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L96" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -291,9 +295,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Height of defined <em>bounds</em>.
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L132"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L134"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L132" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L134" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -303,9 +307,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Width of defined <em>bounds</em>.
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L127"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L129"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L127" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L129" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -315,9 +319,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L212"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L214"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L212" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L214" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -327,22 +331,33 @@ class="link-seesrc" target="_blank">Source</a>
 
 Returns a <em>Delaunator</em> object constructed from <tt class="docutils literal"><span class="pre"><span class="Identifier">coordinates</span></span></tt>, a flattened sequence of points representing site locations.
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L672"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L674"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L672" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L674" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
-<div id="fromPoints,seq[P],proc(P),proc(P)">
-<dt><pre><span class="Keyword">proc</span> <a href="#fromPoints%2Cseq%5BP%5D%2Cproc%28P%29%2Cproc%28P%29"><span class="Identifier">fromPoints</span></a><span class="Other">[</span><span class="Identifier">P</span><span class="Other">,</span> <span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">points</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">P</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">getX</span><span class="Other">:</span> <span class="Keyword">proc</span> <span class="Other">(</span><span class="Identifier">p</span><span class="Other">:</span> <span class="Identifier">P</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span> <span class="Other">=</span> <span class="Identifier">defaultGetX</span><span class="Other">;</span>
-                      <span class="Identifier">getY</span><span class="Other">:</span> <span class="Keyword">proc</span> <span class="Other">(</span><span class="Identifier">p</span><span class="Other">:</span> <span class="Identifier">P</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span> <span class="Other">=</span> <span class="Identifier">defaultGetY</span><span class="Other">)</span><span class="Other">:</span> <a href="delaunator.html#Delaunator"><span class="Identifier">Delaunator</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
+<div id="fromCustom,seq[P],proc(P),proc(P)">
+<dt><pre><span class="Keyword">proc</span> <a href="#fromCustom%2Cseq%5BP%5D%2Cproc%28P%29%2Cproc%28P%29"><span class="Identifier">fromCustom</span></a><span class="Other">[</span><span class="Identifier">P</span><span class="Other">,</span> <span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">points</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">P</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">getX</span><span class="Other">,</span> <span class="Identifier">getY</span><span class="Other">:</span> <span class="Keyword">proc</span> <span class="Other">(</span><span class="Identifier">p</span><span class="Other">:</span> <span class="Identifier">P</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">)</span><span class="Other">:</span> <a href="delaunator.html#Delaunator"><span class="Identifier">Delaunator</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
 <dd>
 
-Returns a <em>Delaunator</em> object constructed from <tt class="docutils literal"><span class="pre"><span class="Identifier">points</span></span></tt>, a sequence of some paired type which is automatically converted to a flattened sequence of coordinates if points' elements can be referenced with the '[]' operator. Otherwise one can specify <tt class="docutils literal"><span class="pre"><span class="Identifier">getX</span></span></tt> and <tt class="docutils literal"><span class="pre"><span class="Identifier">getY</span></span></tt> for extracting <em>x</em> and <em>y</em> respectively.
+Returns a <em>Delaunator</em> object constructed from <tt class="docutils literal"><span class="pre"><span class="Identifier">points</span></span></tt>, a sequence of some type from which <em>x</em> and <em>y</em> coordinate values are extracted via the specified <tt class="docutils literal"><span class="pre"><span class="Identifier">getX</span></span></tt> and <tt class="docutils literal"><span class="pre"><span class="Identifier">getY</span></span></tt> procs.
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L694"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L710"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L694" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L710" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="fromPoints,seq[P]">
+<dt><pre><span class="Keyword">proc</span> <a href="#fromPoints%2Cseq%5BP%5D"><span class="Identifier">fromPoints</span></a><span class="Other">[</span><span class="Identifier">P</span><span class="Other">,</span> <span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">points</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">P</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="delaunator.html#Delaunator"><span class="Identifier">Delaunator</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span></pre></dt>
+<dd>
+
+Returns a <em>Delaunator</em> object constructed from <tt class="docutils literal"><span class="pre"><span class="Identifier">points</span></span></tt>, a sequence of some pairwise type from which <em>x</em> and <em>y</em> coordinate values can be extracted via the '[]' operator. When x and y values are not at [0] and [1] respectively, use <tt class="docutils literal"><span class="pre"><span class="Identifier">fromCustom</span></span></tt> instead.
+&nbsp;&nbsp;<a
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L697"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L697" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -352,9 +367,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Returns the <strong>id</strong> of the next <em>site</em> of the hull following the site defined by <tt class="docutils literal"><span class="pre"><span class="Identifier">sid</span></span></tt>.
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L137"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L139"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L137" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L139" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -364,9 +379,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Returns the <strong>id</strong> of the previous <em>site</em> of the hull preceding the site defined by <tt class="docutils literal"><span class="pre"><span class="Identifier">sid</span></span></tt>.
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L142"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L144"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L142" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L144" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -376,9 +391,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Returns the <strong>id</strong> of the 'leftmost' incomming <em>halfedge</em> to the site defined by <tt class="docutils literal"><span class="pre"><span class="Identifier">sid</span></span></tt>. 'Leftmost' can be understood as if one were standing at the site's position. Used for constructing Voronoi edges / regions.
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L147"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L149"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L147" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L149" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -388,9 +403,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Builds and rebuilds the dual-graph. This procedure should be called on a <em>Delaunator</em> object after changing the object's <tt class="docutils literal"><span class="pre"><span class="Identifier">coords</span></span></tt>.
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L275"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L277"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L275" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L277" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -404,7 +419,7 @@ class="link-seesrc" target="_blank">Source</a>
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2023-06-17 23:42:22 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2023-06-17 23:46:55 UTC</small>
       </div>
     </div>
   </div>

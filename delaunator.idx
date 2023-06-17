@@ -7,4 +7,5 @@ siteToLeftmostHalfedge	delaunator.html#siteToLeftmostHalfedge,Delaunator,uint32	
 circumcenter	delaunator.html#circumcenter,F,F,F,F,F,F	delaunator: circumcenter[F](ax, ay, bx, by, cx, cy: F): tuple[x, y: F]	
 update	delaunator.html#update,Delaunator	delaunator: update[T](this: var Delaunator)	
 fromCoords	delaunator.html#fromCoords,seq[T]	delaunator: fromCoords[T](coordinates: var seq[T]): Delaunator[T]	
-fromPoints	delaunator.html#fromPoints,seq[P],proc(P),proc(P)	delaunator: fromPoints[P, T](points: seq[P]; getX: proc (p: P): T = defaultGetX;\n                 getY: proc (p: P): T = defaultGetY): Delaunator[T]	
+fromPoints	delaunator.html#fromPoints,seq[P]	delaunator: fromPoints[P, T](points: seq[P]): Delaunator[T]	
+fromCustom	delaunator.html#fromCustom,seq[P],proc(P),proc(P)	delaunator: fromCustom[P, T](points: seq[P]; getX, getY: proc (p: P): T): Delaunator[T]	
