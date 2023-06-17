@@ -1,8 +1,22 @@
 
 import ../src/delaunator
 
-var
-  points: seq[tuple[x,y: int]] = @[(x: 5, y: 5), (x: 7, y: 5), (x: 7, y: 6)]
-  d = delaunator.fromPoints[tuple[x, y: int], float64](points, proc (p: tuple[x,y: int]): float64 = float64(p.x), proc (p: tuple[x,y: int]): float64 = float64(p.y))
+type
+  Site = tuple
+    label: string
+    x, y: int
 
-assert d.triangles == @[uint32(0), uint32(2), uint32(1)]
+let
+  myGetX = proc (t: Site): float64 = float64(t.x)
+  myGetY = proc (t: SIte): float64 = float64(t.y)
+var
+  sites: seq[Site] = @[("a", 5, 5), ("b", 7, 5), ("c", 7, 6)]
+  dCustom = delaunator.fromCustom[Site, float64](sites, myGetX, myGetY)
+
+assert dCustom.triangles == @[uint32(0), uint32(2), uint32(1)]
+
+var
+  points: seq[seq[int]] = @[@[5, 5], @[7, 5], @[7, 6]]
+  dPoints = delaunator.fromPoints[seq[int], float32](points)
+
+assert dPoints.triangles == @[uint32(0), uint32(2), uint32(1)]

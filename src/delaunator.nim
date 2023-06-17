@@ -39,7 +39,7 @@ runnableExamples:
       [63, 198], [215, 171], [33,  261], [40, 61], [189, 168],
       [247, 222], [265, 81], [21, 253], [24, 67], [27, 113]
     ]
-    # Construct into a `float32` coordinates
+    # Construct into `float32` coordinates
     d = delaunator.fromPoints[array[2, int], float32](points)
 
   # Halfedges of triangulation.
@@ -49,6 +49,8 @@ runnableExamples:
 ##
 ## .. code-block:: nim
 ##   @[5, 8, 11, 14, 17, 0, -1, 9, 1, 7, 29, 2, 22, 24, 3, 20, -1, 4, 26, -1, 15, 32, 12, 28, 13, 35, 18, -1, 23, 10, -1, 33, 21, 31, -1, 25]
+##
+## Construction from custom types is aided by `fromCustom`.
 ##
 ## Both fields, *triangles* and *halfedges* are sequences indexed by **halfedge**
 ## id. Importantly, notice that some halfedges index to '-1'. These halfedges have
@@ -691,12 +693,24 @@ func defaultGetY[P, T](p: P): T =
   T(p[1])
 
 
-proc fromPoints*[P, T](points: seq[P]; getX: proc (p: P): T = defaultGetX; getY: proc (p: P): T = defaultGetY): Delaunator[T] =
+#proc fromPoints*[P, T](points: seq[P]; getX: proc (p: P): T = defaultGetX; getY: proc (p: P): T = defaultGetY): Delaunator[T] =
+proc fromPoints*[P, T](points: seq[P]): Delaunator[T] =
   ## Returns a *Delaunator* object constructed from `points`, a sequence of some
-  ## paired type which is automatically converted to a flattened sequence of
-  ## coordinates if points' elements can be referenced with the '[]' operator.
-  ## Otherwise one can specify `getX` and `getY` for extracting *x* and *y*
-  ## respectively.
+  ## pairwise type from which *x* and *y* coordinate values can be extracted via
+  ## the '[]' operator. When x and y values are not at [0] and [1] respectively,
+  ## use `fromCustom` instead.
+  var
+    coords = newSeq[T](points.len * 2)
+  for i, point in points:
+    coords[2 * i] = defaultGetX[P, T](point)
+    coords[2 * i + 1] = defaultGetY[P, T](point)
+  fromCoords[T](coords)
+
+
+proc fromCustom*[P, T](points: seq[P]; getX, getY: proc (p: P): T): Delaunator[T] =
+  ## Returns a *Delaunator* object constructed from `points`, a sequence of some
+  ## type from which *x* and *y* coordinate values are extracted via the
+  ## specified `getX` and `getY` procs.
   var
     coords = newSeq[T](points.len * 2)
   for i, point in points:
