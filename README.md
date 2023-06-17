@@ -18,10 +18,54 @@ See also, [Pixienator](https://github.com/patternspandemic/pixienator), a helper
 - Helpers for navigating various parts of the datastructure (not optimized)
   - Includes clipping of infinite regions, ala d3-delaunay's implementation
 
-### Example
+### Examples
+#### *Construction*
+The very basics, import delaunator and construct with a flat seq of coordinates:
 ```nim
-# Example coming soon..
+import delaunator
+
+var
+  # A flat seq of `float64` coordinates
+  coords = @[63.59410858154297, 198.1050262451172, 215.7989349365234, 171.0301208496094, ...]
+  # Construct from coordinates
+  d = delaunator.fromCoords[float64](coords)
+
+# Triplets of site ids.
+echo d.triangles
+# @[4, 5, 1, 4, 0, 5, 5, 6, 1, ...]
 ```
+One can construct from a seq of pairwise points as well:
+```nim
+var
+  points = @[[63, 198], [215, 171], [33,  261], [40, 61], ...]
+  # Constructs into a seq of `float32` coordinates
+  d = delaunator.fromPoints[array[2, int], float32](points)
+
+# Halfedges of triangulation.
+echo d.halfedges
+# @[5, 8, 11, 14, 17, 0, -1, 9, ...]
+```
+Construction from more complicated types can be accomplished with `fromCustom`:
+```nim
+type
+  Site = tuple
+    label: string
+    x, y: int
+
+let
+  getSiteX = proc (t: Site): float32 = float32(t.x)
+  getSiteY = proc (t: SIte): float32 = float32(t.y)
+
+var
+  # A custom seq of Sites
+  sites: seq[Site] = @[("a", 63, 198), ("b", 215, 171), ("c", 33,  261), ("d", 40, 61), ... ]
+  # Construct
+  d = delaunator.fromCustom[Site, float32](sites, getSiteX, getSiteY)
+```
+#### *The Delaunator Object*
+...
+#### *Helpers*
+...
 
 ### Performance
 I'd post some numbers here, but my kit is so old, you best just run the benchmark yourself. See [tests/bench.nim](https://github.com/patternspandemic/delaunator-nim/blob/main/tests/bench.nim) for a benchmark based off the one in the original implementation.
