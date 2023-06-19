@@ -113,8 +113,8 @@ window.addEventListener('DOMContentLoaded', main);
   minX*, minY*, maxX*, maxY*: T ## Extents of *coords*.
   triangles*: seq[uint32]    ## Sequence of triplet indices into *coords* defining delaunay triangulation.
   halfedges*: seq[int32]     ## Sequence of complement halfedges to that of the index.
-  hull*: seq[uint32]         ## Sequence of halfedge ids comprising the triangulation's hull.
-  vectors*: seq[T]           ## Sequence of pair rays emanating from infinite regions of hull sites.
+  hull*: seq[uint32]         ## Sequence of point ids comprising the triangulation's hull.
+  vectors*: seq[T]           ## Sequence of rays emanating from each triangle circumcenter adjacent to a hull site. Used for clipping infinite Voronoi regions.
   bounds*: tuple[minX, minY, maxX, maxY: T] ## Clipping bounds for the infinate Voronoi regions.
   trianglesLen: int32
   d_triangles: seq[uint32]
@@ -268,8 +268,8 @@ class="link-seesrc" target="_blank">Source</a>
   <span class="Identifier">minX</span><span class="Operator">*</span><span class="Other">,</span> <span class="Identifier">minY</span><span class="Operator">*</span><span class="Other">,</span> <span class="Identifier">maxX</span><span class="Operator">*</span><span class="Other">,</span> <span class="Identifier">maxY</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">T</span> <span class="Comment">## Extents of *coords*.</span>
   <span class="Identifier">triangles</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">uint32</span><span class="Other">]</span>    <span class="Comment">## Sequence of triplet indices into *coords* defining delaunay triangulation.</span>
   <span class="Identifier">halfedges</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">int32</span><span class="Other">]</span>     <span class="Comment">## Sequence of complement halfedges to that of the index.</span>
-  <span class="Identifier">hull</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">uint32</span><span class="Other">]</span>         <span class="Comment">## Sequence of halfedge ids comprising the triangulation's hull.</span>
-  <span class="Identifier">vectors</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span>           <span class="Comment">## Sequence of pair rays emanating from infinite regions of hull sites.</span>
+  <span class="Identifier">hull</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">uint32</span><span class="Other">]</span>         <span class="Comment">## Sequence of point ids comprising the triangulation's hull.</span>
+  <span class="Identifier">vectors</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span>           <span class="Comment">## Sequence of rays emanating from each triangle circumcenter adjacent to a hull site. Used for clipping infinite Voronoi regions.</span>
   <span class="Identifier">bounds</span><span class="Operator">*</span><span class="Other">:</span> <span class="Keyword">tuple</span><span class="Other">[</span><span class="Identifier">minX</span><span class="Other">,</span> <span class="Identifier">minY</span><span class="Other">,</span> <span class="Identifier">maxX</span><span class="Other">,</span> <span class="Identifier">maxY</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">]</span> <span class="Comment">## Clipping bounds for the infinate Voronoi regions.</span>
   <span class="Identifier">trianglesLen</span><span class="Other">:</span> <span class="Identifier">int32</span>
   <span class="Identifier">d_triangles</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">uint32</span><span class="Other">]</span>
@@ -453,7 +453,7 @@ class="link-seesrc" target="_blank">Source</a>
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2023-06-19 19:32:24 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2023-06-19 19:36:40 UTC</small>
       </div>
     </div>
   </div>
