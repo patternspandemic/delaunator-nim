@@ -149,6 +149,16 @@ window.addEventListener('DOMContentLoaded', main);
     title="circumcenter[F](ax, ay, bx, by, cx, cy: F): tuple[x, y: F]">circumcenter[F](ax, ay, bx, by, cx, cy: F): tuple[x, y: F]</a></li>
 
   </ul>
+  <ul class="simple nested-toc-section">extentHeight
+      <li><a class="reference" href="#extentHeight%2CDelaunator%5BT%5D"
+    title="extentHeight[T](d: Delaunator[T]): T">extentHeight[T](d: Delaunator[T]): T</a></li>
+
+  </ul>
+  <ul class="simple nested-toc-section">extentWidth
+      <li><a class="reference" href="#extentWidth%2CDelaunator%5BT%5D"
+    title="extentWidth[T](d: Delaunator[T]): T">extentWidth[T](d: Delaunator[T]): T</a></li>
+
+  </ul>
   <ul class="simple nested-toc-section">fromCoords
       <li><a class="reference" href="#fromCoords%2Cseq%5BT%5D"
     title="fromCoords[T](coordinates: var seq[T]): Delaunator[T]">fromCoords[T](coordinates: var seq[T]): Delaunator[T]</a></li>
@@ -295,9 +305,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Height of defined <em>bounds</em>.
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L134"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L144"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L134" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L144" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -307,9 +317,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Width of defined <em>bounds</em>.
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L129"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L139"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L129" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L139" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -319,9 +329,33 @@ class="link-seesrc" target="_blank">Source</a>
 
 
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L214"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L224"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L214" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L224" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="extentHeight,Delaunator[T]">
+<dt><pre><span class="Keyword">func</span> <a href="#extentHeight%2CDelaunator%5BT%5D"><span class="Identifier">extentHeight</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">d</span><span class="Other">:</span> <a href="delaunator.html#Delaunator"><span class="Identifier">Delaunator</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span></pre></dt>
+<dd>
+
+Height of the <em>triangulation</em>.
+&nbsp;&nbsp;<a
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L134"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L134" class="link-seesrc" target="_blank" >Edit</a>
+
+</dd>
+</div>
+<div id="extentWidth,Delaunator[T]">
+<dt><pre><span class="Keyword">func</span> <a href="#extentWidth%2CDelaunator%5BT%5D"><span class="Identifier">extentWidth</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">d</span><span class="Other">:</span> <a href="delaunator.html#Delaunator"><span class="Identifier">Delaunator</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span></pre></dt>
+<dd>
+
+Width of the <em>triangulation</em>.
+&nbsp;&nbsp;<a
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L129"
+class="link-seesrc" target="_blank">Source</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L129" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -331,9 +365,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Returns a <em>Delaunator</em> object constructed from <tt class="docutils literal"><span class="pre"><span class="Identifier">coordinates</span></span></tt>, a flattened sequence of points representing site locations.
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L674"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L684"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L674" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L684" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -343,9 +377,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Returns a <em>Delaunator</em> object constructed from <tt class="docutils literal"><span class="pre"><span class="Identifier">points</span></span></tt>, a sequence of some type from which <em>x</em> and <em>y</em> coordinate values are extracted via the specified <tt class="docutils literal"><span class="pre"><span class="Identifier">getX</span></span></tt> and <tt class="docutils literal"><span class="pre"><span class="Identifier">getY</span></span></tt> procs.
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L710"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L720"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L710" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L720" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -355,9 +389,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Returns a <em>Delaunator</em> object constructed from <tt class="docutils literal"><span class="pre"><span class="Identifier">points</span></span></tt>, a sequence of some pairwise type from which <em>x</em> and <em>y</em> coordinate values can be extracted via the '[]' operator. When x and y values are not at [0] and [1] respectively, use <tt class="docutils literal"><span class="pre"><span class="Identifier">fromCustom</span></span></tt> instead.
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L697"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L707"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L697" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L707" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -367,9 +401,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Returns the <strong>id</strong> of the next <em>site</em> of the hull following the site defined by <tt class="docutils literal"><span class="pre"><span class="Identifier">sid</span></span></tt>.
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L139"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L149"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L139" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L149" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -379,9 +413,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Returns the <strong>id</strong> of the previous <em>site</em> of the hull preceding the site defined by <tt class="docutils literal"><span class="pre"><span class="Identifier">sid</span></span></tt>.
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L144"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L154"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L144" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L154" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -391,9 +425,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Returns the <strong>id</strong> of the 'leftmost' incomming <em>halfedge</em> to the site defined by <tt class="docutils literal"><span class="pre"><span class="Identifier">sid</span></span></tt>. 'Leftmost' can be understood as if one were standing at the site's position. Used for constructing Voronoi edges / regions.
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L149"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L159"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L149" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L159" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -403,9 +437,9 @@ class="link-seesrc" target="_blank">Source</a>
 
 Builds and rebuilds the dual-graph. This procedure should be called on a <em>Delaunator</em> object after changing the object's <tt class="docutils literal"><span class="pre"><span class="Identifier">coords</span></span></tt>.
 &nbsp;&nbsp;<a
-href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L277"
+href="https://github.com/patternspandemic/delaunator-nim/tree/main/src/delaunator.nim#L287"
 class="link-seesrc" target="_blank">Source</a>
-&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L277" class="link-seesrc" target="_blank" >Edit</a>
+&nbsp;&nbsp;<a href="https://github.com/patternspandemic/delaunator-nim/edit/devel/src/delaunator.nim#L287" class="link-seesrc" target="_blank" >Edit</a>
 
 </dd>
 </div>
@@ -419,7 +453,7 @@ class="link-seesrc" target="_blank">Source</a>
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2023-06-17 23:46:55 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2023-06-19 16:48:16 UTC</small>
       </div>
     </div>
   </div>

@@ -1,4 +1,6 @@
 Delaunator	delaunator.html#Delaunator	delaunator: Delaunator	
+extentWidth	delaunator.html#extentWidth,Delaunator[T]	delaunator: extentWidth[T](d: Delaunator[T]): T	
+extentHeight	delaunator.html#extentHeight,Delaunator[T]	delaunator: extentHeight[T](d: Delaunator[T]): T	
 boundWidth	delaunator.html#boundWidth,Delaunator[T]	delaunator: boundWidth[T](d: Delaunator[T]): T	
 boundHeight	delaunator.html#boundHeight,Delaunator[T]	delaunator: boundHeight[T](d: Delaunator[T]): T	
 hullNext	delaunator.html#hullNext,Delaunator,uint32	delaunator: hullNext(d: Delaunator; sid: uint32): uint32	
