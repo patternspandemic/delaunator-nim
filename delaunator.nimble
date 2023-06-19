@@ -1,6 +1,6 @@
 # Package
 
-version       = "20230610"
+version       = "20230619"
 author        = "patternspandemic"
 description   = "Fast 2D Delaunay Triangulation"
 license       = "Unlicense"
