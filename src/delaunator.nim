@@ -1,3 +1,6 @@
+# Up to date with mapbox/Delaunator at b220a46cf974f4ef6e302d028379df916f53766a June 4, 2023
+#                 mourner/robust-predicates c20b0ab9ab4c4f2969f3611908c41ce76aa0e7a7 May 25, 2023
+
 ## `Delaunator-Nim <https://github.com/patternspandemic/delaunator-nim>`_ is a
 ## port of `Mapbox/Delaunator <https://github.com/mapbox/delaunator>`_, a fast
 ## library for 2D Delaunay triangulation. In addition, this port includes a set
@@ -72,10 +75,7 @@ runnableExamples:
 ## The above linked guide is still very applicable to this port, and the helpers
 ## described therein, along with many more, are implemented in `delaunator/helpers <helpers.html>`_
 
-# TODO: Lib doc, delaunator-nim is ...
-#       definitions, i.e. 'site', point, etc
-
-# Up to date with mapbox/Delaunator at 103acb4564a36ad2dff11dc0135a348f4e8fc149 May 27, 2032
+# TODO: definitions, i.e. 'site', point, etc
 
 # TODO: Consider using int64 for type of halfedge indice, due to their use as
 # index into triangles to reference points. As int32, they'd be unable to ref
@@ -301,83 +301,82 @@ proc update*[T](this: var Delaunator) =
       i = 0
       ar = 0'i32
 
-    block outerWhile: # TODO: remove block, not needed.
-      while true:
-        let b = uthis.d_halfedges[a]
+    while true:
+      let b = uthis.d_halfedges[a]
 
-        #[
-        if the pair of triangles doesn't satisfy the Delaunay condition
-        (p1 is inside the circumcircle of [p0, pl, pr]), flip them,
-        then do the same check/flip recursively for the new pair of triangles
+      #[
+      if the pair of triangles doesn't satisfy the Delaunay condition
+      (p1 is inside the circumcircle of [p0, pl, pr]), flip them,
+      then do the same check/flip recursively for the new pair of triangles
 
-                pl                    pl
-               /||\                  /  \
-            al/ || \bl            al/    \a
-             /  ||  \              /      \
-            /  a||b  \    flip    /___ar___\
-          p0\   ||   /p1   =>   p0\---bl---/p1
-             \  ||  /              \      /
-            ar\ || /br             b\    /br
-               \||/                  \  /
-                pr                    pr
+              pl                    pl
+             /||\                  /  \
+          al/ || \bl            al/    \a
+           /  ||  \              /      \
+          /  a||b  \    flip    /___ar___\
+        p0\   ||   /p1   =>   p0\---bl---/p1
+           \  ||  /              \      /
+          ar\ || /br             b\    /br
+             \||/                  \  /
+              pr                    pr
 
-        ]#
+      ]#
 
-        let a0 = a - (a mod 3)
-        ar = a0 + ((a + 2) mod 3)
+      let a0 = a - (a mod 3)
+      ar = a0 + ((a + 2) mod 3)
 
-        if b == -1: # convex hull edge
-          if i == 0: break
-          dec i
-          a = int32(EDGE_STACK[i])
-          continue
+      if b == -1: # convex hull edge
+        if i == 0: break
+        dec i
+        a = int32(EDGE_STACK[i])
+        continue
 
-        let
-          b0 = b - (b mod 3)
-          al = a0 + ((a + 1) mod 3)
-          bl = b0 + ((b + 2) mod 3)
+      let
+        b0 = b - (b mod 3)
+        al = a0 + ((a + 1) mod 3)
+        bl = b0 + ((b + 2) mod 3)
 
-          p0 = uthis.d_triangles[ar]
-          pr = uthis.d_triangles[a]
-          pl = uthis.d_triangles[al]
-          p1 = uthis.d_triangles[bl]
+        p0 = uthis.d_triangles[ar]
+        pr = uthis.d_triangles[a]
+        pl = uthis.d_triangles[al]
+        p1 = uthis.d_triangles[bl]
 
-          illegal = inCircle(
-            uthis.coords[2 * p0], uthis.coords[2 * p0 + 1],
-            uthis.coords[2 * pr], uthis.coords[2 * pr + 1],
-            uthis.coords[2 * pl], uthis.coords[2 * pl + 1],
-            uthis.coords[2 * p1], uthis.coords[2 * p1 + 1])
+        illegal = inCircle(
+          uthis.coords[2 * p0], uthis.coords[2 * p0 + 1],
+          uthis.coords[2 * pr], uthis.coords[2 * pr + 1],
+          uthis.coords[2 * pl], uthis.coords[2 * pl + 1],
+          uthis.coords[2 * p1], uthis.coords[2 * p1 + 1])
 
-        if illegal:
-          uthis.d_triangles[a] = p1
-          uthis.d_triangles[b] = p0
+      if illegal:
+        uthis.d_triangles[a] = p1
+        uthis.d_triangles[b] = p0
 
-          let hbl = uthis.d_halfedges[bl]
+        let hbl = uthis.d_halfedges[bl]
 
-          # edge swapped on the other side of the hull (rare);
-          if hbl == -1:
-            var e = uthis.d_hullStart
-            while true:
-              if int32(uthis.d_hullTri[e]) == bl:
-                uthis.d_hullTri[e] = uint32(a)
-                break
-              e = int32(uthis.d_hullPrev[e])
-              if e == uthis.d_hullStart: break
-          u_link(uthis, a, hbl)
-          u_link(uthis, b, uthis.d_halfedges[ar])
-          u_link(uthis, ar, bl)
+        # edge swapped on the other side of the hull (rare);
+        if hbl == -1:
+          var e = uthis.d_hullStart
+          while true:
+            if int32(uthis.d_hullTri[e]) == bl:
+              uthis.d_hullTri[e] = uint32(a)
+              break
+            e = int32(uthis.d_hullPrev[e])
+            if e == uthis.d_hullStart: break
+        u_link(uthis, a, hbl)
+        u_link(uthis, b, uthis.d_halfedges[ar])
+        u_link(uthis, ar, bl)
 
-          let br = b0 + ((b + 1) mod 3)
+        let br = b0 + ((b + 1) mod 3)
 
-          # don't worry about hitting the cap: it can only happen on extremely degenerate input
-          if i < EDGE_STACK.len:
-            EDGE_STACK[i] = uint32(br)
-            inc i
+        # don't worry about hitting the cap: it can only happen on extremely degenerate input
+        if i < EDGE_STACK.len:
+          EDGE_STACK[i] = uint32(br)
+          inc i
 
-        else:
-          if i == 0: break
-          dec i
-          a = int32(EDGE_STACK[i])
+      else:
+        if i == 0: break
+        dec i
+        a = int32(EDGE_STACK[i])
 
     return uint32(ar)
 
