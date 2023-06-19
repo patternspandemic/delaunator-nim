@@ -11,15 +11,19 @@ See also, [Pixienator](https://github.com/patternspandemic/pixienator), a helper
 
 <img src="delaunator.png" alt="Delaunator generated image example.">
 
-### Features
+## Features
 - Delaunay Triangulation
 - Voronoi Regions
 - Uses porteded robust-predicates for robustness
 - Helpers for navigating various parts of the datastructure (not optimized)
   - Includes clipping of infinite regions, ala d3-delaunay's implementation
 
-### Examples
-#### *Construction*
+## Examples
+* [Construction](#construction)
+* [The Delaunator Object](#the-delaunator-object)
+* [Helpers](#helpers)
+
+### *Construction*
 The very basics, import delaunator and construct with a flat seq of coordinates:
 ```nim
 import delaunator
@@ -62,15 +66,54 @@ var
   # Construct
   d = delaunator.fromCustom[Site, float32](sites, getSiteX, getSiteY)
 ```
-#### *The Delaunator Object*
-...
-#### *Helpers*
+
+### *The Delaunator Object*
+Once constructed, a Delaunator object exposes these fields:
+* `coords`\
+The flat `seq[float32 or float64]` of coordinates representing site locations from which the triangulation was built.
+```nim
+# The nth 'point' x and y locations:
+d.coords[n * 2]     # x
+d.coords[n * 2 + 1] # y
+```
+* `triangles`\
+Indexed by halfedge id, a `seq[uint32]` of triplet indices into *coords* defining the Delaunay triangulation.
+```nim
+let
+  pid = d.triangles[e] # The 'point' id where halfedge e starts
+  x = d.coords[pid * 2]
+  y = d.coords[pid * 2 + 1]
+```
+* `halfedges`\
+Indexed by halfedge id, a `seq[int32]` of complement indices (representing the opposite halfedge of the adjacent triangle) to that of the index. Halfedges on the hull will have no opposite, and their complement indice will be '-1'.
+```nim
+d.halfedges[0] # 5
+d.halfedges[5] # 0
+d.halfedges[6] # -1, Halfedge with id '6' is on the hull
+```
+
+> The relation between triangle and halfedge ids:
+> * The halfedges of triangle `t` are `3 * t`, `3 * t + 1`, and `3 * t + 2`
+> * The triangle of halfedge `e` is `floor(e/3)`
+
+* `hull`\
+A `seq[uint32]` of indices into *coords* (point ids), representing sites that make up the triangulation's hull.
+* `vectors`\
+A flat `seq[float32 or float64]` of rays emanating from each triangle circumcenter adjacent to a hull site. Used for clipping infinite Voronoi regions.
+* `minX`, `minY`, `maxX`, `maxY`\
+The float32 or float64 extents of the triangulation.
+* `bounds`\
+A `tuple[minX, minY, maxX, maxY]` of float32 or float64 bounds used for clipping infinite Voronoi regions against. The default bounds are the same as the extents.
+
+Note that the `delaunator/helpers` module (described next) makes working with Delaunator objects much more convienient.
+
+### *Helpers*
 ...
 
-### Performance
+## Performance
 I'd post some numbers here, but my kit is so old, you best just run the benchmark yourself. See [tests/bench.nim](https://github.com/patternspandemic/delaunator-nim/blob/main/tests/bench.nim) for a benchmark based off the one in the original implementation.
 
-### Notes on This Port
+## Notes on This Port
 This port has been implemented with a novice understanding of Nim, with all that entails. Practically speaking, this means the code has room for optimization, may not adhere to nim conventions and styling, and may contain outright puzzling verbosity / actions.
 
 Some of this is on purpose. For instance, keeping code structure and variable naming as close to the original implementation made it easier to perform the port and locate bugs.
