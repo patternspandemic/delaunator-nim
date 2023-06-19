@@ -100,8 +100,8 @@ type
     minX*, minY*, maxX*, maxY*: T ## Extents of *coords*.
     triangles*: seq[uint32]       ## Sequence of triplet indices into *coords* defining delaunay triangulation.
     halfedges*: seq[int32]        ## Sequence of complement halfedges to that of the index.
-    hull*: seq[uint32]            ## Sequence of halfedge ids comprising the triangulation's hull.
-    vectors*: seq[T]              ## Sequence of pair rays emanating from infinite regions of hull sites.
+    hull*: seq[uint32]            ## Sequence of point ids comprising the triangulation's hull.
+    vectors*: seq[T]              ## Sequence of rays emanating from each triangle circumcenter adjacent to a hull site. Used for clipping infinite Voronoi regions.
     bounds*: tuple[minX, minY, maxX, maxY: T] ## Clipping bounds for the infinate Voronoi regions.
 
     # Arrays that will store the triangulation graph
