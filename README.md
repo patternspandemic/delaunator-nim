@@ -54,7 +54,7 @@ type
 
 let
   getSiteX = proc (t: Site): float32 = float32(t.x)
-  getSiteY = proc (t: SIte): float32 = float32(t.y)
+  getSiteY = proc (t: Site): float32 = float32(t.y)
 
 var
   # A custom seq of Sites

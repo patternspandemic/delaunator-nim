@@ -126,14 +126,24 @@ type
     d_pointToLeftmostHalfedgeIndex: Table[uint32, int32]
 
 
+func extentWidth*[T](d: Delaunator[T]): T =
+  ## Width of the *triangulation*.
+  return d.maxX - d.minX
+
+
+func extentHeight*[T](d: Delaunator[T]): T =
+  ## Height of the *triangulation*.
+  return d.maxY - d.minY
+
+
 func boundWidth*[T](d: Delaunator[T]): T =
   ## Width of defined *bounds*.
-  return d.maxX - d.minX
+  return d.bounds.maxX - d.bounds.minX
 
 
 func boundHeight*[T](d: Delaunator[T]): T =
   ## Height of defined *bounds*.
-  return d.maxY - d.minY
+  return d.bounds.maxY - d.bounds.minY
 
 
 func hullNext*(d: Delaunator, sid: uint32): uint32 =
