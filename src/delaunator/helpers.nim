@@ -32,6 +32,12 @@ proc uniformDist*[F](count: int, a: F, b: F, r: var Rand = randState()): seq[F] 
 
 
 proc grid*[F](
+  n, m: int; # n x m sites
+  fromN, toN, fromM, toM: F; # grid range
+  leftEdge, rightEdge, topEdge, bottomEdge: bool = true; # sites on edges?
+  jitterN, jitterM: F = 0.0; pinHull: bool = false; # jitter
+  r: var Rand = randState()
+): seq[F] =
   ## Returns a flattened `seq` of points in an `n` x `m` grid distributed within
   ## a horizontal range `fromN` .. `toN`, and a vertical range `formM` .. `toM`.
   ## By default, points begin and end at range extents, but can be inset by
@@ -39,12 +45,6 @@ proc grid*[F](
   ## amount of horizontal or vertical jitter in the range 0.0 .. 1.0 with `jitterN`
   ## and `jitterM` respectively. When `pinHull` is true, points on the grid's
   ## hull are not jittered.
-  n, m: int; # n x m sites
-  fromN, toN, fromM, toM: F; # grid range
-  leftEdge, rightEdge, topEdge, bottomEdge: bool = true; # sites on edges?
-  jitterN, jitterM: F = 0.0; pinHull: bool = false; # jitter
-  r: var Rand = randState()
-): seq[F] =
   let
     count = n * m
     nWidth = toN - fromN
