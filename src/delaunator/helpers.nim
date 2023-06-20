@@ -1,51 +1,44 @@
-# TODO: inline things
-#       iterators sans ids?
+# Region clipping based on https://observablehq.com/@mbostock/to-infinity-and-back-again
 
 import std/[math, options, sequtils, random, sets, sugar]
 
 import ../delaunator
 import clip
 
-# Region clipping based on https://observablehq.com/@mbostock/to-infinity-and-back-again
 
 #[
-- halfedgeIdsOfTriange
-- triangleIdOfEdge
-- nextHalfedge
-- prevHalfedge
-- pointIdsOfTriangle
-- triangleIdsAdjacentToTriangle
-- iterPoints
-- iterHullPoints
-- iterHullEdges
-- iterTriangleEdges
-- iterTriangles
-- triangleCircumenter
-- iterVoronoiEdges
-- edgeIdsAroundPoint
-- iterVoronoiRegions
-- voronoiRegion
-
 etc...
 boundsCenter, hullCentroid
-onion
+onion iterOnionLayers
 spanning tree
-neighbor sites
+neighbor sites iterPointNeighbors
 circles (largest circle fitting the tri/region centered at some center)
-nearest site
+nearest/farthest neighbor
+hullPointVectors?
 ]#
 
 proc normalDist*[F](count: int, mu = 0.0; sigma = 1.0, r: var Rand = randState()): seq[F] =
+  ## Returns a `seq` of `count` *normally* distributed random values of given
+  ## `mu` and `sigme`.
   result = collect(newSeqOfCap(count)):
     for i in 1 .. count: F(gauss(r, mu, sigma))
 
 
 proc uniformDist*[F](count: int, a: F, b: F, r: var Rand = randState()): seq[F] =
+  ## Returns a `seq` of `count` *uniformly* distributed random values in the
+  ## range `a` .. `b`.
   result = collect(newSeqOfCap(count)):
     for i in 1 .. count: rand[F](r, a .. b)
 
 
 proc grid*[F](
+  ## Returns a flattened `seq` of points in an `n` x `m` grid distributed within
+  ## a horizontal range `fromN` .. `toN`, and a vertical range `formM` .. `toM`.
+  ## By default, points begin and end at range extents, but can be inset by
+  ## setting `leftEdge`, `rightEdge`, `topEdge` or `bottomEdge` to false. Set an
+  ## amount of horizontal or vertical jitter in the range 0.0 .. 1.0 with `jitterN`
+  ## and `jitterM` respectively. When `pinHull` is true, points on the grid's
+  ## hull are not jittered.
   n, m: int; # n x m sites
   fromN, toN, fromM, toM: F; # grid range
   leftEdge, rightEdge, topEdge, bottomEdge: bool = true; # sites on edges?
@@ -84,6 +77,10 @@ proc grid*[F](
 
 
 proc zipPolarDists*[F](r, t: openArray[F], xOffset, yOffset: F = F(0.0)): seq[F] =
+  ## Returns a flattened `seq` of points by zipping two collections of values,
+  ## `r` -treated as a radii, and `t` -treated as an angles, converting each pair
+  ## of polar coordinates into their cartesian counterpart. Translate the polar
+  ## origin with `xOffset` and `yOffset`.
   var
     m = min(r.len, t.len)
     i = 0
@@ -95,6 +92,8 @@ proc zipPolarDists*[F](r, t: openArray[F], xOffset, yOffset: F = F(0.0)): seq[F]
 
 
 proc zipDists*[F](s1, s2: openArray[F]): seq[F] =
+  ## Returns a flattened `seq` of points by zipping two collections of values,
+  ## `s1` and `s2`
   var
     m = min(s1.len, s2.len)
     i = 0
@@ -315,8 +314,14 @@ iterator iterVoronoiRegions*[T](d: Delaunator[T]): tuple[pid: uint32, verts: seq
 #    if (i === 0 && this.delaunay.hull.length === 1) {
 #      return [this.xmax, this.ymin, this.xmax, this.ymax, this.xmin, this.ymax, this.xmin, this.ymin];
 #    }
-# TODO: doc that this will return empty verts when completely clipped out of bounds.
 proc voronoiRegion*[T](d: Delaunator[T], pid: uint32): tuple[pid: uint32, verts: seq[array[2, T]]] =
+  ## Returns the voronoi region of site with id `pid`. The tuple returned
+  ## includes the id of the point to which the region belongs, and
+  ## a seq of vertices describing the region's polygon. Infinite regions are
+  ## clipped to the bounds as set on the delaunator object, defaulting to the
+  ## minimum and maximum extents of the points provided. Clipped regions which
+  ## are completely out of bounds will yield empty vertices, wheras finite
+  ## regions are always yielded whether in bounds or not, and are not clipped.
   let
     incomming = siteToLeftmostHalfedge(d, pid)
     edgeIds = edgeIdsAroundPoint(d, incomming)
@@ -377,8 +382,3 @@ iterator iterHullEdges*[T](d: Delaunator[T]): tuple[hid: uint32; eid: int32; pid
     yield (hid, eid, pid, qid, p, q)
     inc hid
     dec e
-
-
-#TODO: hullPointVectors?
-#      iterPointNeighbors?
-#      iterOnionLayers
