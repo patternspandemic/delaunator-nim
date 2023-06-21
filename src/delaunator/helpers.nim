@@ -1,5 +1,21 @@
 # Region clipping based on https://observablehq.com/@mbostock/to-infinity-and-back-again
 
+## This module contains non-optimize versions of the many helpers described in
+## Mapbox's guide to `Delaunator's data structures <https://mapbox.github.io/delaunator/>`_,
+## as well as more. An added feature for some of these helpers is clipping of
+## Voronoi regions, based on the `bounds` field of a Delaunator object. The default
+## bounds are set to the extents of the Delaunay triangulation.
+##
+## Some conventions on parameter/tuple field naming and their meaning:
+## * ``d`` - a Delaunator object
+## * ``sid`` - a **site** id, aka a point id
+## * ``pid``, ``qid``, ``rid`` - a **point** id
+## * ``tid`` - a **triangle** id
+## * ``eid`` - a **halfedge** id
+## * ``hid`` - a **hull** id
+## * ``p``, ``q``, ``r`` - a cartesian **point**
+
+
 import std/[math, options, sequtils, random, sets, sugar]
 
 import ../delaunator
