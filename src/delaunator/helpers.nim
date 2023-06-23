@@ -184,6 +184,7 @@ iterator iterTriangles*[T](d: Delaunator[T]): tuple[tid: uint32; pid, qid, rid: 
     inc t
 
 
+# TODO: This may actually be a seq of length 1 when the tri makes up a corner of the bounds?
 func triangleIdsAdjacentToTriangle*(d: Delaunator, tid: uint32): seq[uint32] =
   ## The triangle ids adjacent to triangle with id `tid`. A seq of length 2 or 3.
   var tids = collect(newSeqOfCap(3)):
@@ -200,8 +201,8 @@ func triangleCentroid*[T](d: Delaunator[T], tid: uint32): array[2, T] =
     p1 = [d.coords[2 * pids[0]], d.coords[2 * pids[0] + 1]]
     p2 = [d.coords[2 * pids[1]], d.coords[2 * pids[1] + 1]]
     p3 = [d.coords[2 * pids[2]], d.coords[2 * pids[2] + 1]]
-    x = (p1[0] + p2[0] + p3[0]) / 3.0
-    y = (p1[1] + p2[1] + p3[1]) / 3.0
+    x = (p1[0] + p2[0] + p3[0]) / T(3.0)
+    y = (p1[1] + p2[1] + p3[1]) / T(3.0)
   return [x, y]
 
 
